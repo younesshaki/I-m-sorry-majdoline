@@ -1,0 +1,308 @@
+.chapter1Overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6vh 10vw 18vh;
+  font-family: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  color: #eae1e1;
+  text-align: center;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* Scene 1 Background Slideshow */
+.chapter1Scene1ImageLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  pointer-events: none;
+  overflow: hidden;
+  background: #030712;
+}
+
+.chapter1Scene1Image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  display: block;
+  transform: scale(1.15);
+  transform-origin: center;
+  will-change: transform, opacity;
+  transition: opacity 1.5s ease-in-out;
+}
+
+.chapter1Scene1Image.active {
+  opacity: 1;
+}
+
+.chapter1Scene1ImagePortal {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.chapter1Scene5VideoLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.chapter1Scene5Video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  display: block;
+  transform: scale(1.08);
+  transform-origin: center;
+}
+
+.chapter1Scene5VideoPortal {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  z-index: 180;
+  pointer-events: none;
+}
+
+.chapter1ModeFade {
+  position: fixed;
+  inset: 0;
+  background: #030712;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 900;
+}
+
+.chapter1Scene {
+  position: absolute;
+  top: 38%;
+  left: 55%;
+  width: min(900px, 85vw);
+  max-height: calc(100vh - 24vh);
+  overflow: hidden;
+  transform: translate(-50%, -50%)
+    translate3d(var(--scene-x, 0px), var(--scene-y, 0px), 0);
+}
+
+.chapter1SceneInner {
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  max-height: 100%;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, opacity, filter;
+}
+
+.chapter1Scene {
+  font-family: "Bebas Neue", sans-serif;
+}
+
+.chapter1Scene .chapter1Title {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(40px, 10vw, 120px);
+  font-weight: 700;
+  color: #c41e3a;
+  text-transform: uppercase;
+  line-height: 0.85;
+  letter-spacing: 0.02em;
+  margin-top: 0;
+  max-width: 100%;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.chapter1Title {
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  color: rgb(255, 255, 255);
+  margin-bottom: 24px;
+  transform-origin: center bottom;
+  font-weight: 700;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.chapter1Line {
+  font-size: clamp(16px, 1.8vw, 24px);
+  margin: 0;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.3);
+  transform-style: preserve-3d;
+  transform-origin: center top;
+  will-change: transform, opacity, filter;
+  transition: opacity 0.3s ease-out;
+}
+
+.chapter1Line:last-child {
+  margin-bottom: 0;
+}
+
+.typewriter {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.emphasis {
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #fdfbfb;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.6),
+    0 3px 10px rgba(0, 0, 0, 0.4),
+    0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.glow {
+  color: #f9f3f3;
+  text-shadow: 
+    0 0 18px rgba(255, 255, 255, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.sceneColumns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 36px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.sceneColumn .chapter1Line {
+  margin-bottom: 12px;
+}
+
+.merge-line {
+  text-align: center;
+  font-style: italic;
+  color: #ffffff;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.final-line {
+  font-size: clamp(20px, 2.5vw, 30px);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #f8f4f4;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 900px) {
+  .chapter1Overlay {
+    padding: 8vh 7vw 20vh;
+  }
+
+  .chapter1Scene {
+    top: 42%;
+    left: 50%;
+    width: min(680px, 88vw);
+    max-height: none;
+    overflow: visible;
+  }
+
+  .chapter1SceneInner {
+    gap: 10px;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .chapter1Scene .chapter1Title {
+    font-size: clamp(34px, 13vw, 72px);
+    line-height: 0.92;
+  }
+
+  .chapter1Title {
+    font-size: 15px;
+    letter-spacing: 0.22em;
+    margin-bottom: 18px;
+  }
+
+  .chapter1Line {
+    font-size: clamp(16px, 3.9vw, 21px);
+    line-height: 1.55;
+  }
+
+  .sceneColumns {
+    gap: 18px;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .chapter1Overlay {
+    align-items: flex-start;
+    padding: 12vh 6vw 22vh;
+  }
+
+  .chapter1Scene {
+    top: 44%;
+    left: 50%;
+    width: 88vw;
+    max-height: none;
+    overflow: visible;
+    transform: translate(-50%, -50%);
+  }
+
+  .chapter1SceneInner {
+    overflow: visible;
+  }
+
+  .chapter1Scene .chapter1Title {
+    font-size: clamp(30px, 15vw, 56px);
+  }
+
+  .chapter1Title {
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    margin-bottom: 14px;
+  }
+
+  .chapter1Line,
+  .emphasis,
+  .final-line {
+    font-size: clamp(15px, 4.8vw, 20px);
+    line-height: 1.5;
+  }
+}
