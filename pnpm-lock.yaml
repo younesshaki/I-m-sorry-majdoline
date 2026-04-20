@@ -17,6 +17,9 @@ importers:
       '@react-three/postprocessing':
         specifier: ^2.16.2
         version: 2.19.1(@react-three/fiber@8.18.0(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.164.1))(@types/three@0.164.1)(react@18.3.1)(three@0.164.1)
+      '@supabase/supabase-js':
+        specifier: ^2.104.0
+        version: 2.104.0
       gsap:
         specifier: ^3.12.5
         version: 3.14.2
@@ -65,7 +68,7 @@ importers:
         version: 5.3.0(rollup@4.55.3)
       '@tailwindcss/vite':
         specifier: ^4.1.18
-        version: 4.1.18(vite@5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2))
+        version: 4.1.18(vite@5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2))
       '@types/react':
         specifier: ^18.3.2
         version: 18.3.27
@@ -77,7 +80,7 @@ importers:
         version: 0.164.1
       '@vitejs/plugin-react':
         specifier: ^4.3.1
-        version: 4.7.0(vite@5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2))
+        version: 4.7.0(vite@5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2))
       autoprefixer:
         specifier: ^10.4.23
         version: 10.4.23(postcss@8.5.6)
@@ -88,14 +91,14 @@ importers:
         specifier: ^4.1.18
         version: 4.1.18
       typescript:
-        specifier: ^5.4.5
-        version: 5.9.3
+        specifier: ^6.0.3
+        version: 6.0.3
       vite:
         specifier: ^5.2.11
-        version: 5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2)
+        version: 5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2)
       vite-plugin-glsl:
         specifier: ^1.3.0
-        version: 1.5.5(@rollup/pluginutils@5.3.0(rollup@4.55.3))(vite@5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2))
+        version: 1.5.5(@rollup/pluginutils@5.3.0(rollup@4.55.3))(vite@5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2))
 
 packages:
 
@@ -944,6 +947,33 @@ packages:
     peerDependencies:
       react: '>= 16.3.0'
 
+  '@supabase/auth-js@2.104.0':
+    resolution: {integrity: sha512-Vs0ndL+s5an7rOmXtS/nbYnGXL8m+KXlCSrPIcw9bR96ma6qyLYILnE6syuM+rpDnf+Tg4PVNxNB2+oDwoy6mA==}
+    engines: {node: '>=20.0.0'}
+
+  '@supabase/functions-js@2.104.0':
+    resolution: {integrity: sha512-O8EyEz/RT1kfWhyJNpVc/VbLeBsohHGBVif/CI83zoMB+Iul/t/NIekH1/7RsH6kuO+b2D4wJhfiaW8Qr47sRg==}
+    engines: {node: '>=20.0.0'}
+
+  '@supabase/phoenix@0.4.0':
+    resolution: {integrity: sha512-RHSx8bHS02xwfHdAbX5Lpbo6PXbgyf7lTaXTlwtFDPwOIw64NnVRwFAXGojHhjtVYI+PEPNSWwkL90f4agN3bw==}
+
+  '@supabase/postgrest-js@2.104.0':
+    resolution: {integrity: sha512-ynylEq6wduQEycj6pL3P+/yIfDQ+CTnBC5I6p+PzcAO2ybj9coAITVtMfboi+g/dacgMslN5MH73rXsRMB29+Q==}
+    engines: {node: '>=20.0.0'}
+
+  '@supabase/realtime-js@2.104.0':
+    resolution: {integrity: sha512-9fUVDoTVAhn7a79+AmEx+asUlRtf2yBrji7TQckcKn/WK4hvAA9Lia9er+lnhuz3WNiF1x6kkA4x7bRCJrU+KA==}
+    engines: {node: '>=20.0.0'}
+
+  '@supabase/storage-js@2.104.0':
+    resolution: {integrity: sha512-s2NHtuAWb9nldJ/fS62WnJE6edvCWn31rrO+FJKlAohs99qdVgtLegUReTU2H9WnZiQlVqaBtu386wt6/6lrRw==}
+    engines: {node: '>=20.0.0'}
+
+  '@supabase/supabase-js@2.104.0':
+    resolution: {integrity: sha512-hILwhIjCB53G31jlHUe73NDEmrXudcjcYlVRuvNfEhzf0gyFQaFf7j6rd1UGmYZkFMOg//DFE8Iy9ZbNEgosVw==}
+    engines: {node: '>=20.0.0'}
+
   '@tailwindcss/node@4.1.18':
     resolution: {integrity: sha512-DoR7U1P7iYhw16qJ49fgXUlry1t4CpXeErJHnQ44JgTSKMaZUdf17cfn5mHchfJ4KRBZRFA/Coo+MUF5+gOaCQ==}
 
@@ -1085,6 +1115,9 @@ packages:
   '@types/node@25.0.10':
     resolution: {integrity: sha512-zWW5KPngR/yvakJgGOmZ5vTBemDoSqF3AcV/LrO5u5wTWyEAVVh+IT39G4gtyAkh3CtTZs8aX/yRM82OfzHJRg==}
 
+  '@types/node@25.6.0':
+    resolution: {integrity: sha512-+qIYRKdNYJwY3vRCZMdJbPLJAtGjQBudzZzdzwQYkEPQd+PJGixUL5QfvCLDaULoLv+RhT3LDkwEfKaAkgSmNQ==}
+
   '@types/offscreencanvas@2019.7.3':
     resolution: {integrity: sha512-ieXiYmgSRXUDeOntE1InxjWyvEelZGP63M+cGuquuRLuIKKT1osnkXjxev9B7d1nXSug5vpunx+gNlbVxMlC9A==}
 
@@ -1131,6 +1164,9 @@ packages:
   '@types/wrap-ansi@8.1.0':
     resolution: {integrity: sha512-Pt0qXwu5s9KKODY8bB93mwgOsUvkCOGt//kvHGMaUZi0u//Yge5X5/iME08eSU+Oxf9sZlwAFaJwORDSIjd8pw==}
     deprecated: This is a stub types definition. wrap-ansi provides its own type definitions, so you do not need this installed.
+
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
   '@use-gesture/core@10.3.1':
     resolution: {integrity: sha512-WcINiDt8WjqBdUXye25anHiNxPc0VOrlT8F6LLkU6cycrOGUDyY/yyFmsg3k8i5OLvv25llc0QC45GhR/C8llw==}
@@ -1518,6 +1554,7 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glsl-noise@0.0.0:
@@ -1554,6 +1591,10 @@ packages:
 
   hls.js@1.6.15:
     resolution: {integrity: sha512-E3a5VwgXimGHwpRGV+WxRTKeSp2DW5DI5MWv34ulL3t5UNmyJWCQ1KmLEHbYzcfThfXG8amBL+fCYPneGHC4VA==}
+
+  iceberg-js@0.8.1:
+    resolution: {integrity: sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA==}
+    engines: {node: '>=20.0.0'}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -1821,6 +1862,7 @@ packages:
 
   mersennetwister@0.2.3:
     resolution: {integrity: sha512-r/Lx4L1jqZu8dsbDqw2d+EgRXf4F/yLTUbuMHUstDge9EsLAlANEvooy1u4YcgLOCV7GEmpxMGKtIhxFhhJqNA==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   meshline@3.3.1:
     resolution: {integrity: sha512-/TQj+JdZkeSUOl5Mk2J7eLcYTLiQm2IDzmlSvYm7ov15anEcDJ92GHqqazxTSreeNgfnYu24kiEvvv0WlbCdFQ==}
@@ -2246,13 +2288,16 @@ packages:
   tunnel-rat@0.1.2:
     resolution: {integrity: sha512-lR5VHmkPhzdhrM092lI2nACsLO4QubF0/yoOhzX7c+wIpbN1GjHNzCc91QlpxBi+cnx8vVJ+Ur6vL5cEoQPFpQ==}
 
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
+  undici-types@7.19.2:
+    resolution: {integrity: sha512-qYVnV5OEm2AW8cJMCpdV20CDyaN3g0AjDlOGf1OW4iaDEx8MwdtChUp4zu4H0VP3nDRF/8RKWH+IPp9uW0YGZg==}
 
   uniq@1.0.1:
     resolution: {integrity: sha512-Gw+zz50YNKPDKXs+9d+aKAjVwpjNwqzvNpLigIruT4HA9lMZNdMqs9x07kKHB/L9WRzqp4+DlTU5s4wG2esdoA==}
@@ -2371,6 +2416,18 @@ packages:
   wrap-ansi@9.0.2:
     resolution: {integrity: sha512-42AtmgqjV+X1VpdOfyTGOYRi0/zsoLqtXQckTmqTeybT+BDIbM/Guxo7x3pE2vtpr1ok6xRqM9OpBe+Jyoqyww==}
     engines: {node: '>=18'}
+
+  ws@8.20.0:
+    resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
@@ -3240,6 +3297,46 @@ snapshots:
     dependencies:
       react: 18.3.1
 
+  '@supabase/auth-js@2.104.0':
+    dependencies:
+      tslib: 2.8.1
+
+  '@supabase/functions-js@2.104.0':
+    dependencies:
+      tslib: 2.8.1
+
+  '@supabase/phoenix@0.4.0': {}
+
+  '@supabase/postgrest-js@2.104.0':
+    dependencies:
+      tslib: 2.8.1
+
+  '@supabase/realtime-js@2.104.0':
+    dependencies:
+      '@supabase/phoenix': 0.4.0
+      '@types/ws': 8.18.1
+      tslib: 2.8.1
+      ws: 8.20.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@supabase/storage-js@2.104.0':
+    dependencies:
+      iceberg-js: 0.8.1
+      tslib: 2.8.1
+
+  '@supabase/supabase-js@2.104.0':
+    dependencies:
+      '@supabase/auth-js': 2.104.0
+      '@supabase/functions-js': 2.104.0
+      '@supabase/postgrest-js': 2.104.0
+      '@supabase/realtime-js': 2.104.0
+      '@supabase/storage-js': 2.104.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@tailwindcss/node@4.1.18':
     dependencies:
       '@jridgewell/remapping': 2.3.5
@@ -3301,12 +3398,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.1.18
       '@tailwindcss/oxide-win32-x64-msvc': 4.1.18
 
-  '@tailwindcss/vite@4.1.18(vite@5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2))':
+  '@tailwindcss/vite@4.1.18(vite@5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2))':
     dependencies:
       '@tailwindcss/node': 4.1.18
       '@tailwindcss/oxide': 4.1.18
       tailwindcss: 4.1.18
-      vite: 5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2)
+      vite: 5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2)
 
   '@tweenjs/tween.js@23.1.3': {}
 
@@ -3365,6 +3462,10 @@ snapshots:
     dependencies:
       undici-types: 7.16.0
 
+  '@types/node@25.6.0':
+    dependencies:
+      undici-types: 7.19.2
+
   '@types/offscreencanvas@2019.7.3': {}
 
   '@types/prompts@2.4.9':
@@ -3413,6 +3514,10 @@ snapshots:
     dependencies:
       wrap-ansi: 8.1.0
 
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 25.6.0
+
   '@use-gesture/core@10.3.1': {}
 
   '@use-gesture/react@10.3.1(react@18.3.1)':
@@ -3426,7 +3531,7 @@ snapshots:
     optionalDependencies:
       react: 18.3.1
 
-  '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2))':
+  '@vitejs/plugin-react@4.7.0(vite@5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2))':
     dependencies:
       '@babel/core': 7.28.6
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.6)
@@ -3434,7 +3539,7 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.27
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2)
+      vite: 5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -3817,6 +3922,8 @@ snapshots:
       function-bind: 1.1.2
 
   hls.js@1.6.15: {}
+
+  iceberg-js@0.8.1: {}
 
   ieee754@1.2.1: {}
 
@@ -4508,9 +4615,11 @@ snapshots:
       - immer
       - react
 
-  typescript@5.9.3: {}
+  typescript@6.0.3: {}
 
   undici-types@7.16.0: {}
+
+  undici-types@7.19.2: {}
 
   uniq@1.0.1: {}
 
@@ -4540,19 +4649,19 @@ snapshots:
 
   v8n@1.5.1: {}
 
-  vite-plugin-glsl@1.5.5(@rollup/pluginutils@5.3.0(rollup@4.55.3))(vite@5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2)):
+  vite-plugin-glsl@1.5.5(@rollup/pluginutils@5.3.0(rollup@4.55.3))(vite@5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2)):
     dependencies:
-      vite: 5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2)
+      vite: 5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2)
     optionalDependencies:
       '@rollup/pluginutils': 5.3.0(rollup@4.55.3)
 
-  vite@5.4.21(@types/node@25.0.10)(lightningcss@1.30.2)(sass@1.97.2):
+  vite@5.4.21(@types/node@25.6.0)(lightningcss@1.30.2)(sass@1.97.2):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.5.6
       rollup: 4.55.3
     optionalDependencies:
-      '@types/node': 25.0.10
+      '@types/node': 25.6.0
       fsevents: 2.3.3
       lightningcss: 1.30.2
       sass: 1.97.2
@@ -4606,6 +4715,8 @@ snapshots:
       ansi-styles: 6.2.3
       string-width: 7.2.0
       strip-ansi: 7.1.2
+
+  ws@8.20.0: {}
 
   yallist@3.1.1: {}
 
