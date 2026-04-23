@@ -32,6 +32,35 @@
   border-radius: 3px;
 }
 
+.storyHome__singleChapter {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.storyHome__singleEyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.42);
+  opacity: 0;
+  animation: storyHomeFadeUp 0.8s ease 0.25s forwards;
+}
+
+.storyHome__dualCards {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: min(100%, 900px);
+}
+
 /* ─── Hero section ─── */
 
 .storyHome__hero {
@@ -221,6 +250,21 @@
   overflow: hidden;
 }
 
+.storyHome__chapterCard--standalone {
+  width: min(100%, 420px);
+  flex: 1 1 min(100%, 380px);
+  max-width: 420px;
+  padding: 2.2rem 2rem;
+  border-color: rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+  opacity: 0;
+  animation: storyHomeFadeUp 0.95s ease 0.4s forwards;
+}
+
+.storyHome__giftCard {
+  animation-delay: 0.55s;
+}
+
 .storyHome__chapterCard::before {
   content: "";
   position: absolute;
@@ -348,6 +392,14 @@
   letter-spacing: 0.06em;
 }
 
+.storyHome__chapterStandaloneHint {
+  margin: 0.9rem 0 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.46);
+}
+
 /* ─── Unlockables placeholder ─── */
 
 .storyHome__unlockables {
@@ -424,6 +476,10 @@
 /* ─── Mobile responsive ─── */
 
 @media (max-width: 640px) {
+  .storyHome__singleChapter {
+    padding: 1.5rem;
+  }
+
   .storyHome__hero {
     min-height: 55vh;
     padding: 3rem 1.5rem 2rem;

@@ -92,6 +92,26 @@ export const storyManifest: PartDefinition[] = [
       chapter("part-6-chapter-5", "Chapter 5", "hybrid"),
     ],
   },
+  {
+    id: "sorry",
+    title: "Sorry",
+    chapters: [
+      chapter("sorry-chapter-1", "Sorry", "cinematic", [
+        cinematicScene("sorry-scene-1", "Sorry"),
+        cinematicScene("sorry-scene-2", "Echo"),
+        cinematicScene("sorry-scene-3", "Distance"),
+        cinematicScene("sorry-scene-4", "Ashes"),
+        cinematicScene("sorry-scene-5", "Night Drive"),
+        cinematicScene("sorry-scene-6", "Silence"),
+        cinematicScene("sorry-scene-7", "Weight"),
+        cinematicScene("sorry-scene-8", "Glass"),
+        cinematicScene("sorry-scene-9", "Orbit"),
+        cinematicScene("sorry-scene-10", "After"),
+        cinematicScene("sorry-scene-11", "Forgiveness"),
+        cinematicScene("sorry-scene-12", "Thank You"),
+      ]),
+    ],
+  },
 ];
 
 export const getPartDefinition = (partNumber: number) =>

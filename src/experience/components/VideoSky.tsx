@@ -49,6 +49,10 @@ export function VideoSky({
       opacityRef?.current ?? (opacity !== undefined ? opacity : 1);
     const clampedOpacity = Math.min(Math.max(nextOpacity, 0), 1);
     const current = currentOpacityRef.current;
+
+    // Skip work when opacity is settled (no visible change)
+    if (Math.abs(clampedOpacity - current) < 0.001) return;
+
     const delta = clampedOpacity - current;
     const step = Math.min(Math.max(fadeSpeed, 0), 1);
     const updated = current + delta * step;

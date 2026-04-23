@@ -14,7 +14,10 @@ import "./StoryHomePage.css";
 
 type StoryHomePageProps = {
   onEnter: (partIndex: number, chapterIndex: number) => void;
+  onEnterNomad?: () => void;
 };
+
+const VISIBLE_CHAPTER_IDS = ["sorry-chapter-1"];
 
 /* ─── Status label helpers ─── */
 
@@ -27,14 +30,16 @@ const STATUS_LABELS: Record<ChapterStatus, string> = {
 
 /* ─── Subcomponents ─── */
 
-function ChapterCard({
+export function ChapterCard({
   chapter,
   globalNumber,
   onSelect,
+  standalone = false,
 }: {
   chapter: ChapterDisplayInfo;
   globalNumber: number;
   onSelect: () => void;
+  standalone?: boolean;
 }) {
   const { playHover, playNavClick } = useUiSounds();
   const canSelect = chapter.status !== "locked";
@@ -50,7 +55,7 @@ function ChapterCard({
 
   return (
     <div
-      className={`storyHome__chapterCard storyHome__chapterCard--${chapter.status}`}
+      className={`storyHome__chapterCard storyHome__chapterCard--${chapter.status}${standalone ? " storyHome__chapterCard--standalone" : ""}`}
       onMouseEnter={canSelect ? playHover : undefined}
       onFocus={canSelect ? playHover : undefined}
       onClick={canSelect ? handleSelect : undefined}
@@ -67,32 +72,37 @@ function ChapterCard({
           : undefined
       }
     >
-      <div className="storyHome__chapterMeta">
-        <span className="storyHome__chapterNumber">
-          Chapter {globalNumber}
-        </span>
-        <span
-          className={`storyHome__chapterStatus storyHome__chapterStatus--${chapter.status}`}
-        >
+      {!standalone ? (
+        <div className="storyHome__chapterMeta">
+          <span className="storyHome__chapterNumber">
+            Chapter {globalNumber}
+          </span>
           <span
-            className={`storyHome__statusDot storyHome__statusDot--${chapter.status}`}
-          />
-          {STATUS_LABELS[chapter.status]}
-        </span>
-      </div>
+            className={`storyHome__chapterStatus storyHome__chapterStatus--${chapter.status}`}
+          >
+            <span
+              className={`storyHome__statusDot storyHome__statusDot--${chapter.status}`}
+            />
+            {STATUS_LABELS[chapter.status]}
+          </span>
+        </div>
+      ) : null}
       <h4 className="storyHome__chapterTitle">
         {chapter.definition.title}
       </h4>
-      {chapter.sceneCount > 0 && (
+      {!standalone && chapter.sceneCount > 0 ? (
         <div className="storyHome__chapterScenes">
           {chapter.completedSceneCount} / {chapter.sceneCount} scenes
         </div>
-      )}
+      ) : null}
+      {standalone ? (
+        <p className="storyHome__chapterStandaloneHint">Open</p>
+      ) : null}
     </div>
   );
 }
 
-function PartGroup({
+export function PartGroup({
   part,
   globalOffset,
   onChapterSelect,
@@ -125,6 +135,53 @@ function PartGroup({
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+function GiftCard({
+  unlocked,
+  onSelect,
+}: {
+  unlocked: boolean;
+  onSelect?: () => void;
+}) {
+  const { playHover, playNavClick } = useUiSounds();
+
+  const handleSelect = () => {
+    if (!unlocked || !onSelect) {
+      return;
+    }
+
+    playNavClick();
+    onSelect();
+  };
+
+  return (
+    <div
+      className={`storyHome__chapterCard storyHome__chapterCard--standalone storyHome__giftCard storyHome__chapterCard--${unlocked ? "available" : "locked"}`}
+      onMouseEnter={unlocked ? playHover : undefined}
+      onFocus={unlocked ? playHover : undefined}
+      onClick={unlocked ? handleSelect : undefined}
+      role={unlocked ? "button" : undefined}
+      tabIndex={unlocked ? 0 : undefined}
+      onKeyDown={
+        unlocked
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleSelect();
+              }
+            }
+          : undefined
+      }
+    >
+      <h4 className="storyHome__chapterTitle">
+        The Gift I Never Got to Give
+      </h4>
+      <p className="storyHome__chapterStandaloneHint">
+        {unlocked ? "Open" : "Locked"}
+      </p>
     </div>
   );
 }
@@ -169,101 +226,118 @@ function UnlockablesPlaceholder() {
 
 /* ─── Main component ─── */
 
-export default function StoryHomePage({ onEnter }: StoryHomePageProps) {
-  const { playHover, playPrimaryClick } = useUiSounds();
+export default function StoryHomePage({
+  onEnter,
+  onEnterNomad,
+}: StoryHomePageProps) {
   const { isReady, state } = useStory();
+  const giftUnlocked = state.flags["gift_unlocked"]?.value === true;
 
   const parts = useMemo(
     () => (isReady ? getPartDisplayList(state) : []),
     [isReady, state]
   );
 
-  const resumeTarget = useMemo(
-    () => (isReady ? getResumeTarget(state) : null),
-    [isReady, state]
+  const visibleParts = useMemo(
+    () =>
+      parts
+        .map((part) => {
+          const visibleChapters = part.chapters
+            .filter((chapter) =>
+              VISIBLE_CHAPTER_IDS.includes(chapter.definition.id)
+            )
+            .map((chapter) => ({
+              ...chapter,
+              status: chapter.status === "locked" ? "available" : chapter.status,
+            }));
+
+          return {
+            ...part,
+            chapters: visibleChapters,
+            completedChapterCount: visibleChapters.filter(
+              (chapter) => chapter.status === "completed"
+            ).length,
+            totalChapterCount: visibleChapters.length,
+          };
+        })
+        .filter((part) => part.chapters.length > 0),
+    [parts]
   );
 
-  const showResume = isReady && hasProgress(state);
+  const visibleChapterCount = useMemo(
+    () =>
+      visibleParts.reduce(
+        (sum, part) => sum + part.chapters.length,
+        0
+      ),
+    [visibleParts]
+  );
+
+  const standaloneChapter =
+    visibleChapterCount === 1 ? visibleParts[0]?.chapters[0] ?? null : null;
 
   // Compute global chapter offsets for numbering
   const globalOffsets = useMemo(() => {
     let sum = 0;
-    return parts.map((part) => {
+    return visibleParts.map((part) => {
       const offset = sum;
       sum += part.totalChapterCount;
       return offset;
     });
-  }, [parts]);
-
-  const handlePrimaryCta = () => {
-    playPrimaryClick();
-    if (resumeTarget) {
-      onEnter(resumeTarget.partIndex, resumeTarget.chapterIndex);
-    } else {
-      onEnter(0, 0);
-    }
-  };
+  }, [visibleParts]);
 
   return (
     <CinematicShell>
       <div className="storyHome">
-        {/* ─── Hero ─── */}
-        <section className="storyHome__hero">
-          <h1 className="storyHome__title">Nomad</h1>
-          <p className="storyHome__subtitle">A cinematic journey</p>
+        {!isReady ? null : standaloneChapter ? (
+          <section className="storyHome__singleChapter">
+            <p className="storyHome__singleEyebrow">For Dounia</p>
+            <div className="storyHome__dualCards">
+              <ChapterCard
+                chapter={standaloneChapter}
+                globalNumber={1}
+                standalone
+                onSelect={() =>
+                  onEnter(standaloneChapter.partIndex, standaloneChapter.chapterIndex)
+                }
+              />
+              <GiftCard
+                unlocked={giftUnlocked}
+                onSelect={onEnterNomad}
+              />
+            </div>
+          </section>
+        ) : (
+          <>
+            <section className="storyHome__hero">
+              <h1 className="storyHome__title">Nomad</h1>
+              <p className="storyHome__subtitle">A cinematic journey</p>
+            </section>
 
-          <button
-            type="button"
-            className="storyHome__cta"
-            onMouseEnter={isReady ? playHover : undefined}
-            onFocus={isReady ? playHover : undefined}
-            onClick={handlePrimaryCta}
-            disabled={!isReady}
-          >
-            {showResume ? "Continue" : "Begin"}
-            <svg
-              className="storyHome__ctaArrow"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+            <div className="storyHome__divider" />
 
-          {showResume && resumeTarget && (
-            <p className="storyHome__resumeHint">
-              {resumeTarget.partTitle} &middot; {resumeTarget.chapterTitle}
-            </p>
-          )}
-        </section>
+            <section className="storyHome__chapters">
+              <p className="storyHome__sectionLabel">Your Journey</p>
+              {visibleParts.map((part, pi) => (
+                <PartGroup
+                  key={part.definition.id}
+                  part={part}
+                  globalOffset={globalOffsets[pi]}
+                  onChapterSelect={onEnter}
+                />
+              ))}
+            </section>
 
-        {/* ─── Divider ─── */}
-        <div className="storyHome__divider" />
+            {isReady && hasProgress(state) && getResumeTarget(state) ? (
+              <>
+                <div className="storyHome__divider" />
+                <UnlockablesPlaceholder />
+              </>
+            ) : null}
 
-        {/* ─── Chapters ─── */}
-        <section className="storyHome__chapters">
-          <p className="storyHome__sectionLabel">Your Journey</p>
-          {parts.map((part, pi) => (
-            <PartGroup
-              key={part.definition.id}
-              part={part}
-              globalOffset={globalOffsets[pi]}
-              onChapterSelect={onEnter}
-            />
-          ))}
-        </section>
-
-        {/* ─── Unlockables ─── */}
-        <div className="storyHome__divider" />
-        <UnlockablesPlaceholder />
-
-        {/* ─── Footer spacer ─── */}
-        <div className="storyHome__footer" />
+            <div className="storyHome__footer" />
+          </>
+        )}
       </div>
     </CinematicShell>
   );

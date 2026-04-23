@@ -33,6 +33,7 @@ export default function CameraRig({
   const { camera } = useThree();
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const autoRotateRef = useRef(false);
+  const autoRotateSpeedRef = useRef(0.15);
   const rotateTargetRef = useRef<[number, number, number]>([0, 0, 0]);
   const shakeIntensityRef = useRef(0);
   const shakeOffsetRef = useRef<[number, number, number]>([0, 0, 0]);
@@ -48,7 +49,7 @@ export default function CameraRig({
       const dx = camera.position.x - target[0];
       const dz = camera.position.z - target[2];
       const radius = Math.hypot(dx, dz);
-      const angle = Math.atan2(dz, dx) + delta * 0.15;
+      const angle = Math.atan2(dz, dx) + delta * autoRotateSpeedRef.current;
 
       camera.position.x = target[0] + Math.cos(angle) * radius;
       camera.position.z = target[2] + Math.sin(angle) * radius;
@@ -92,6 +93,7 @@ export default function CameraRig({
       timelineRef.current?.kill();
       timelineRef.current = null;
       autoRotateRef.current = false;
+      autoRotateSpeedRef.current = 0.15;
       shakeIntensityRef.current = 0;
       if (shakeOffsetRef.current[0] || shakeOffsetRef.current[1] || shakeOffsetRef.current[2]) {
         camera.position.x -= shakeOffsetRef.current[0];
@@ -110,6 +112,7 @@ export default function CameraRig({
       timelineRef.current?.kill();
       timelineRef.current = null;
       autoRotateRef.current = false;
+      autoRotateSpeedRef.current = 0.15;
       rotateTargetRef.current = [-2.6, -0.6, 0];
       shakeIntensityRef.current = 0;
       if (shakeOffsetRef.current[0] || shakeOffsetRef.current[1] || shakeOffsetRef.current[2]) {
@@ -133,6 +136,7 @@ export default function CameraRig({
     
     timelineRef.current?.kill();
     autoRotateRef.current = false;
+    autoRotateSpeedRef.current = config.autoRotateSpeed ?? 0.15;
     rotateTargetRef.current = config.target;
     
     // Config can force shake, or we default based on type
@@ -224,6 +228,12 @@ export default function CameraRig({
         duration: 2,
         ease: "power2.inOut",
       }, "<").call(() => {
+        autoRotateRef.current = true;
+      });
+    }
+
+    if (config.autoRotateAfterIntro) {
+      tl.call(() => {
         autoRotateRef.current = true;
       });
     }

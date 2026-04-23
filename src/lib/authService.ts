@@ -1,0 +1,134 @@
+import { supabase } from "./supabase";
+
+export type AuthUser = {
+  userId: string;
+  username: string;
+};
+
+export type AuthResult =
+  | { success: true; user: AuthUser; isNew: boolean }
+  | {
+      success: false;
+      error:
+        | "wrong_password"
+        | "username_taken"
+        | "network_error"
+        | "invalid_username";
+    };
+
+function sanitize(input: string): string | null {
+  const lower = input.trim().toLowerCase();
+  if (!/^[a-z0-9_]{2,30}$/.test(lower)) return null;
+  return lower;
+}
+
+function toEmail(username: string): string {
+  return `${username}@majdoline.local`;
+}
+
+export async function checkExistingSession(): Promise<AuthUser | null> {
+  try {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.user) return null;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", session.user.id)
+      .maybeSingle();
+
+    if (!profile?.username) return null;
+
+    return { userId: session.user.id, username: profile.username as string };
+  } catch {
+    return null;
+  }
+}
+
+export async function loginOrRegister(
+  rawUsername: string,
+  password: string
+): Promise<AuthResult> {
+  const username = sanitize(rawUsername);
+  if (!username) return { success: false, error: "invalid_username" };
+
+  const email = toEmail(username);
+
+  try {
+    // Try sign in first
+    const { data: signInData, error: signInError } =
+      await supabase.auth.signInWithPassword({ email, password });
+
+    if (signInData.session) {
+      // Update last_seen_at (fire-and-forget)
+      supabase
+        .from("profiles")
+        .update({ last_seen_at: new Date().toISOString() })
+        .eq("id", signInData.user!.id)
+        .then(() => {});
+
+      return {
+        success: true,
+        user: { userId: signInData.user!.id, username },
+        isNew: false,
+      };
+    }
+
+    const isWrongCreds =
+      signInError?.message?.toLowerCase().includes("invalid login credentials") ||
+      signInError?.message?.toLowerCase().includes("invalid credentials") ||
+      signInError?.status === 400;
+
+    if (!isWrongCreds) {
+      return { success: false, error: "network_error" };
+    }
+
+    // Check if username already exists
+    const { data: existingProfile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", username)
+      .maybeSingle();
+
+    if (existingProfile) {
+      // Username is taken and password was wrong
+      return { success: false, error: "wrong_password" };
+    }
+
+    // New username — register
+    const { data: signUpData, error: signUpError } =
+      await supabase.auth.signUp({ email, password });
+
+    if (signUpError || !signUpData.user) {
+      return { success: false, error: "network_error" };
+    }
+
+    // Insert profile row
+    const { error: profileError } = await supabase
+      .from("profiles")
+      .insert({ id: signUpData.user.id, username });
+
+    if (profileError) {
+      // Race condition: another user grabbed the same username just now
+      if (profileError.code === "23505") {
+        return { success: false, error: "username_taken" };
+      }
+      return { success: false, error: "network_error" };
+    }
+
+    return {
+      success: true,
+      user: { userId: signUpData.user.id, username },
+      isNew: true,
+    };
+  } catch {
+    return { success: false, error: "network_error" };
+  }
+}
+
+export async function logout(): Promise<void> {
+  await supabase.auth.signOut();
+}

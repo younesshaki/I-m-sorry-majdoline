@@ -3,7 +3,7 @@ import { chapterModelUrls as part1Chapter3Assets } from "./scenes/part1/chapter3
 import { chapterModelUrls as part1Chapter4Assets } from "./scenes/part1/chapter4/data/sceneAssets";
 import { chapterModelUrls as part2Chapter1Assets } from "./scenes/part2/chapter5/data/sceneAssets";
 import { chapterModelUrls as part2Chapter2Assets } from "./scenes/part2/chapter6/data/sceneAssets";
-import { chapterModelUrls as part3Chapter1Assets } from "./scenes/part3/chapter9/data/sceneAssets";
+import { chapterModelUrls as sorryChapter1Assets } from "./scenes/sorry/data/sceneAssets";
 
 export type SceneAssetKey = `${number}-${number}`;
 
@@ -12,7 +12,7 @@ const SCENE_ASSETS: Record<SceneAssetKey, string[]> = {
   "1-4": part1Chapter4Assets,
   "2-1": part2Chapter1Assets,
   "2-2": part2Chapter2Assets,
-  "3-1": part3Chapter1Assets,
+  "7-1": sorryChapter1Assets,
 };
 
 export const ALL_SCENE_ASSETS = Array.from(

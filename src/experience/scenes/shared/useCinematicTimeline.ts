@@ -37,6 +37,8 @@ type CinematicTimelineOptions = {
   introDelay?: number;
   /** Callback for progress updates */
   onProgressUpdate?: (sceneIndex: number, sceneId: string | null, isWaiting: boolean) => void;
+  /** Fires once when the last scene completes and user tries to advance further */
+  onAllScenesComplete?: () => void;
 };
 
 type SceneData = {
@@ -53,8 +55,9 @@ export function useCinematicTimeline({
   overlayRef,
   isActive,
   sceneDuration = 20,
-  introDelay = 2.5, // Delay before first scene content appears
+  introDelay = 2.5,
   onProgressUpdate,
+  onAllScenesComplete,
 }: CinematicTimelineOptions) {
   const currentSceneIndexRef = useRef(-1);
   const isPlayingRef = useRef(false);
@@ -312,7 +315,7 @@ export function useCinematicTimeline({
           filter: "blur(10px)" 
         });
       });
-      
+      
       // voDelay must be known before createSceneTimeline so effectiveDuration is correct
       const voDelay = isFirstScene ? introDelay : 0.8;
 
@@ -422,7 +425,8 @@ export function useCinematicTimeline({
         devLog(`[Cinematic] All scenes complete!`);
         isWaitingForScrollRef.current = false;
         debugState.waitingForScroll = false;
-        debugState.canScrollBack = true; // Can still go back at the end
+        debugState.canScrollBack = true;
+        onAllScenesComplete?.();
         return;
       }
       

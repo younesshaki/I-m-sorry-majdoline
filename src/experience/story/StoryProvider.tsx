@@ -35,7 +35,7 @@ type StoryContextValue = {
   resetState: () => Promise<StoryState>;
 };
 
-const StoryContext = createContext<StoryContextValue | null>(null);
+export const StoryContext = createContext<StoryContextValue | null>(null);
 
 const useBackend = import.meta.env.VITE_USE_BACKEND === "true";
 

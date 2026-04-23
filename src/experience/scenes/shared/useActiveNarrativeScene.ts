@@ -57,8 +57,9 @@ export function useActiveNarrativeScene(
 
         const sceneClassName =
           typeof bestSceneClassName === "string" ? bestSceneClassName : "";
+        const classNames = sceneClassName.split(" ");
         const nextId =
-          sceneClassName.split(" ").find((name: string) => name.startsWith("scene-")) ?? null;
+          scenes.find((scene) => classNames.includes(scene.id))?.id ?? null;
 
         if (nextId && nextId !== lastId) {
           const scene = scenes.find((entry) => entry.id === nextId);

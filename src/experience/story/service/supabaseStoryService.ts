@@ -273,20 +273,7 @@ class SupabaseStoryService implements StoryService {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (session?.user) {
-        this.userId = session.user.id;
-        return;
-      }
-
-      // Create anonymous session
-      const { data, error } = await supabase.auth.signInAnonymously();
-      if (error) {
-        console.warn("[supabase-story] Anonymous sign-in failed:", error.message);
-        this.userId = null;
-        return;
-      }
-
-      this.userId = data.user?.id ?? null;
+      this.userId = session?.user?.id ?? null;
     } catch (err) {
       console.warn("[supabase-story] Auth error:", err);
       this.userId = null;

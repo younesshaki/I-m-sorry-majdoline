@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { AdaptiveDpr, OrbitControls, PerformanceMonitor } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import CameraRig from "./CameraRig";
 import SceneManager from "./SceneManager";
@@ -16,6 +16,7 @@ import { preloadAdjacentChapters } from "./sceneAssets";
 import { useLoadingController } from "./hooks/useLoadingController";
 import { SoundProvider } from "./soundContext";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
+import { BackgroundVideo as SorryBackgroundVideo } from "./scenes/sorry/BackgroundVideo";
 import { ScrollIndicator } from "./scenes/shared/ScrollIndicator";
 import { useStory } from "./story/StoryProvider";
 import {
@@ -146,6 +147,7 @@ export default function Experience({
     "Loading Ascension",
     "Loading Echoes",
     "Loading Part 6",
+    "Loading Sorry",
   ];
   const progressLabel = isLoading ? `Loading ${progress}%` : "Ready";
   const loaderText = isLoading
@@ -164,11 +166,11 @@ export default function Experience({
               ? "e"
               : "f"
   );
-  const isCyberOcean = visiblePartIndex === 2 && visibleChapterIndex === 0;
+  const isSorryChapter = visiblePartIndex === 6 && visibleChapterIndex === 0;
   const shouldShowLoader = showLoader && !canHideLoader;
   const preloaderVisible = !initialRevealReady;
   const scenesHidden = shouldShowLoader || preloaderVisible || fade > 0.01;
-  const cameraEnabled = !preloaderVisible && !shouldShowLoader && !isCyberOcean;
+  const cameraEnabled = !preloaderVisible && !shouldShowLoader;
 
   // Reset canHideLoader when chapter changes
   useEffect(() => {
@@ -365,25 +367,40 @@ export default function Experience({
   return (
     <SoundProvider value={{ soundEnabled, soundBlocked }}>
       <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        {isSorryChapter ? <SorryBackgroundVideo isVisible /> : null}
         <ModelPreloader />
         <CanvasErrorBoundary key={`part-${visiblePartIndex}-chapter-${visibleChapterIndex}`}>
           <Canvas
-            dpr={[1, 1.5]} // Cap DPR to 1.5 to save GPU on high-res screens
-            gl={{ 
-              antialias: false, // Significant perf boost
-              powerPreference: "high-performance",
+            dpr={[1, 1]}
+            gl={{
+              alpha: true,
+              antialias: false,
+              powerPreference: "default",
               stencil: false,
               depth: true
             }}
             style={{
+              position: "relative",
+              zIndex: 1,
               width: "100%",
               height: "100%",
+              background: "transparent",
               opacity: preloaderVisible ? 0 : 1,
               transition: "opacity 0.6s ease",
             }}
+            onCreated={({ gl }) => {
+              gl.setClearAlpha(0);
+            }}
             camera={{ position: [0, 0, 5], fov: 75, far: 10000 }}
           >
-            <color attach="background" args={["black"]} />
+            <PerformanceMonitor
+              factor={1}
+              threshold={0.9}
+              bounds={(refreshrate) => [refreshrate * 0.5, refreshrate * 0.9]}
+              onDecline={() => undefined}
+            />
+            <AdaptiveDpr pixelated />
+            {!isSorryChapter ? <color attach="background" args={["black"]} /> : null}
             {devToolsEnabled && debugEnabled && <DebugWrapper enabled={debugEnabled} />}
             <CameraRig
               key={`${sceneIndex}-${visiblePartIndex}-${visibleChapterIndex}`}
@@ -397,15 +414,18 @@ export default function Experience({
                 currentChapter={visibleChapterIndex + 1}
                 currentPart={visiblePartIndex + 1}
                 scenesHidden={scenesHidden}
+                onGoHome={onGoHome}
               />
             </Suspense>
             <pointLight position={[0, 5, 0]} intensity={1} color="white" />
             <OrbitControls
               ref={controlsRef}
               makeDefault
-              enabled={!preloaderVisible && !shouldShowLoader}
+              enabled={!preloaderVisible && !shouldShowLoader && !isSorryChapter}
+              enableRotate={!isSorryChapter}
+              enablePan={false}
               enableZoom={
-                !(
+                !isSorryChapter && !(
                   (visiblePartIndex === 0 && visibleChapterIndex === 3) ||
                   (visiblePartIndex === 0 && visibleChapterIndex === 0)
                 )

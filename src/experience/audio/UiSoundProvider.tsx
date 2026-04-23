@@ -6,18 +6,20 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
-import { useStory } from "../story/StoryProvider";
+import { StoryContext } from "../story/StoryProvider";
 import { UiSoundService } from "./uiSoundService";
 
 const UiSoundContext = createContext<UiSoundService | null>(null);
 
 export function UiSoundProvider({ children }: PropsWithChildren) {
-  const { isReady, state } = useStory();
+  const story = useContext(StoryContext);
+  const isReady = story?.isReady ?? false;
+  const soundEnabled = story?.state.preferences.soundEnabled ?? true;
   const [service] = useState(() => new UiSoundService());
 
   useEffect(() => {
-    service.setEnabled(isReady ? state.preferences.soundEnabled : true);
-  }, [isReady, service, state.preferences.soundEnabled]);
+    service.setEnabled(isReady ? soundEnabled : true);
+  }, [isReady, service, soundEnabled]);
 
   useEffect(() => {
     const prime = () => {

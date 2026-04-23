@@ -180,7 +180,9 @@ export default function ChapterNav({
 }: ChapterNavProps) {
   const [isHidden, setIsHidden] = useState(false);
   const activePart = parts[activePartIndex];
+  const activeChapter = activePart?.chapters[activeChapterIndex];
   const activeChapters = activePart?.chapters ?? [];
+  const shouldHideForSorry = activePartIndex === 6 && activeChapterIndex === 0 && activeChapter?.title === "Sorry";
   const chapterOffsets = useMemo(() => {
     let sum = 0;
     return parts.map((part) => {
@@ -197,6 +199,10 @@ export default function ChapterNav({
   const canNextChapter = activeChapterIndex < activeChapters.length - 1;
 
   useEffect(() => {
+    if (shouldHideForSorry) {
+      return;
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() !== "h") {
         return;
@@ -208,7 +214,11 @@ export default function ChapterNav({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [shouldHideForSorry]);
+
+  if (shouldHideForSorry) {
+    return null;
+  }
 
   return (
     <div className={`chapterNav${isHidden ? " chapterNav--hidden" : ""}`}>

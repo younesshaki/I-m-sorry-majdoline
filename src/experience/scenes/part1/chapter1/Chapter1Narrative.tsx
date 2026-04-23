@@ -974,7 +974,7 @@ export function Chapter1Narrative({ isActive, overlayRef }: Chapter1NarrativePro
       margin: 0;
       padding: 0;
       pointer-events: none;
-      z-index: 0;
+      z-index: 150;
       opacity: 0;
       visibility: hidden;
     `;
@@ -995,17 +995,18 @@ export function Chapter1Narrative({ isActive, overlayRef }: Chapter1NarrativePro
       img.alt = `Scene 3b background ${index + 1}`;
       img.style.cssText = `
         position: absolute;
-        top: 50%;
-        left: 50%;
-        min-width: 100%;
-        min-height: 100%;
-        width: auto;
-        height: auto;
-        transform: translate(-50%, -50%) scale(1.12);
+        inset: 0;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        opacity: ${index === 0 ? 1 : 0};
         will-change: transform, opacity;
       `;
+      gsap.set(img, {
+        opacity: index === 0 ? 1 : 0,
+        scale: 1.12,
+        x: index % 2 === 0 ? "-2%" : "2%",
+        y: index % 2 === 0 ? "-1.5%" : "1.5%",
+      });
       img.draggable = false;
       img.setAttribute("fetchpriority", index === 0 ? "high" : "low");
       img.addEventListener("load", () => {
@@ -1187,7 +1188,7 @@ export function Chapter1Narrative({ isActive, overlayRef }: Chapter1NarrativePro
       margin: 0;
       padding: 0;
       pointer-events: none;
-      z-index: 0;
+      z-index: 150;
       opacity: 0;
       visibility: hidden;
     `;
@@ -1208,17 +1209,18 @@ export function Chapter1Narrative({ isActive, overlayRef }: Chapter1NarrativePro
       img.alt = `Scene 4a background ${index + 1}`;
       img.style.cssText = `
         position: absolute;
-        top: 50%;
-        left: 50%;
-        min-width: 100%;
-        min-height: 100%;
-        width: auto;
-        height: auto;
-        transform: translate(-50%, -50%) scale(1.12);
+        inset: 0;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        opacity: ${index === 0 ? 1 : 0};
         will-change: transform, opacity;
       `;
+      gsap.set(img, {
+        opacity: index === 0 ? 1 : 0,
+        scale: 1.12,
+        x: index % 2 === 0 ? "-2%" : "2%",
+        y: index % 2 === 0 ? "-1.5%" : "1.5%",
+      });
       img.draggable = false;
       img.setAttribute("fetchpriority", index === 0 ? "high" : "low");
       img.addEventListener("load", () => {
@@ -1237,13 +1239,9 @@ export function Chapter1Narrative({ isActive, overlayRef }: Chapter1NarrativePro
     video.autoplay = false; // We'll play manually when ready
     video.style.cssText = `
       position: absolute;
-      top: 50%;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      width: auto;
-      height: auto;
-      transform: translate(-50%, -50%) scale(1.05);
+      inset: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       opacity: 0;
       will-change: transform, opacity;

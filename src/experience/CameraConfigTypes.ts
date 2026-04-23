@@ -12,6 +12,8 @@ export interface CameraConfig {
   path?: Vector3[];
   shakeIntensity?: number;
   useBmwRig?: boolean;
+  autoRotateAfterIntro?: boolean;
+  autoRotateSpeed?: number;
 }
 
 /**
@@ -41,4 +43,3 @@ export interface ChapterCameraConfig extends CameraConfig {
   /** Scroll-driven keyframes for each scene */
   keyframes?: CameraKeyframe[];
 }
-

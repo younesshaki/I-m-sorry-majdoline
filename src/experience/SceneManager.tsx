@@ -10,7 +10,6 @@ const Part2Chapter2 = lazy(() => import("./scenes/part2/chapter6"));
 const Part2Chapter3 = lazy(() => import("./scenes/part2/chapter7"));
 const Part2Chapter4 = lazy(() => import("./scenes/part2/chapter8"));
 
-const Part3Chapter1 = lazy(() => import("./scenes/part3/chapter9"));
 const Part3Chapter2 = lazy(() => import("./scenes/part3/chapter10"));
 const Part3Chapter3 = lazy(() => import("./scenes/part3/chapter11"));
 const Part3Chapter4 = lazy(() => import("./scenes/part3/chapter12"));
@@ -30,6 +29,7 @@ const Part6Chapter2 = lazy(() => import("./scenes/part6/chapter22"));
 const Part6Chapter3 = lazy(() => import("./scenes/part6/chapter23"));
 const Part6Chapter4 = lazy(() => import("./scenes/part6/chapter24"));
 const Part6Chapter5 = lazy(() => import("./scenes/part6/chapter25"));
+const SorryChapter1 = lazy(() => import("./scenes/sorry"));
 
 
 interface SceneManagerProps {
@@ -37,12 +37,14 @@ interface SceneManagerProps {
   currentPart: number;
   onRegisterGoTo?: (fn: (partIndex: number, chapterIndex: number) => void) => void;
   scenesHidden?: boolean;
+  onGoHome?: () => void;
 }
 
 export default function SceneManager({
   currentChapter,
   currentPart,
   scenesHidden = false,
+  onGoHome,
 }: SceneManagerProps) {
   const activeKey = `part${currentPart}-chapter${currentChapter}`;
 
@@ -54,9 +56,9 @@ export default function SceneManager({
 
     return {
       key: activeKey,
-      component: <Component isActive={!scenesHidden} />,
+      component: <Component isActive={!scenesHidden} onGoHome={onGoHome} />,
     };
-  }, [activeKey, currentChapter, currentPart, scenesHidden]);
+  }, [activeKey, currentChapter, currentPart, scenesHidden, onGoHome]);
 
   return (
     <>
@@ -71,7 +73,7 @@ export default function SceneManager({
   );
 }
 
-type SceneComponent = React.ComponentType<{ isActive?: boolean }>;
+type SceneComponent = React.ComponentType<{ isActive?: boolean; onGoHome?: () => void }>;
 
 function getChapterComponent(part: number, chapter: number): SceneComponent | null {
   switch (part) {
@@ -88,7 +90,6 @@ function getChapterComponent(part: number, chapter: number): SceneComponent | nu
       if (chapter === 4) return Part2Chapter4 as SceneComponent;
       break;
     case 3:
-      if (chapter === 1) return Part3Chapter1 as SceneComponent;
       if (chapter === 2) return Part3Chapter2 as SceneComponent;
       if (chapter === 3) return Part3Chapter3 as SceneComponent;
       if (chapter === 4) return Part3Chapter4 as SceneComponent;
@@ -111,6 +112,9 @@ function getChapterComponent(part: number, chapter: number): SceneComponent | nu
       if (chapter === 3) return Part6Chapter3 as SceneComponent;
       if (chapter === 4) return Part6Chapter4 as SceneComponent;
       if (chapter === 5) return Part6Chapter5 as SceneComponent;
+      break;
+    case 7:
+      if (chapter === 1) return SorryChapter1 as SceneComponent;
       break;
     default:
       return null;

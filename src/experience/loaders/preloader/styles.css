@@ -390,3 +390,107 @@
     transform: translate(-50%, -50%) scale(1.78);
   }
 }
+
+/* ─── Auth form (shown on gate before login) ─── */
+
+.pgAuth {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.pgAuth__form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  max-width: 20rem;
+  text-align: center;
+}
+
+.pgAuth__eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.pgAuth__input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.84rem;
+  letter-spacing: 0.02em;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 180ms ease, background 180ms ease;
+}
+
+.pgAuth__input::placeholder {
+  color: rgba(255, 255, 255, 0.26);
+  font-size: 0.78rem;
+}
+
+.pgAuth__input--password::placeholder {
+  font-size: 0.72rem;
+}
+
+.pgAuth__input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.pgAuth__input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pgAuth__error {
+  margin: 0;
+  min-height: 1rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  color: rgba(220, 80, 80, 0.9);
+}
+
+.pgAuth__submit {
+  margin-top: 0.25rem;
+  width: 100%;
+  padding: 0.9rem 1.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.pgAuth__submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.38);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.pgAuth__submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 480px) {
+  .pgAuth {
+    padding: 0 1.25rem;
+  }
+}

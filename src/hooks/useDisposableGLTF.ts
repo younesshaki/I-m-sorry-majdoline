@@ -2,8 +2,8 @@ import { useEffect, useMemo } from "react";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-export function useDisposableGLTF(url: string) {
-  const gltf = useGLTF(url);
+export function useDisposableGLTF(url: string, dracoPath?: string) {
+  const gltf = useGLTF(url, dracoPath);
   const clonedScene = useMemo(() => {
     const cloned = gltf.scene.clone(true);
     cloned.traverse((child) => {
