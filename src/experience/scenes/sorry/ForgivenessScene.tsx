@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import "./ForgivenessScene.css";
 
 type ForgivenessSceneProps = {
   onYes: () => void;
@@ -44,60 +46,24 @@ function ForgivenessOverlay({ onYes, onNo }: ForgivenessSceneProps) {
           Do you have it in you to forgive me?
         </p>
         <div style={{ display: "flex", gap: "1.2rem", justifyContent: "center" }}>
-          <button
+          <HoverBorderGradient
+            as="button"
             type="button"
             onClick={onYes}
-            style={{
-              padding: "0.85rem 2.4rem",
-              border: "1px solid rgba(255,255,255,0.22)",
-              borderRadius: "999px",
-              background: "rgba(255,255,255,0.07)",
-              color: "rgba(245,238,231,0.9)",
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontSize: "clamp(0.85rem, 1.8vw, 1rem)",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              transition: "all 0.28s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.14)";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.38)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.07)";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.22)";
-            }}
+            containerClassName="forgivenessChoiceButton forgivenessChoiceButton--yes"
+            className="forgivenessChoiceButton__inner"
           >
             Yes
-          </button>
-          <button
+          </HoverBorderGradient>
+          <HoverBorderGradient
+            as="button"
             type="button"
             onClick={onNo}
-            style={{
-              padding: "0.85rem 2.4rem",
-              border: "1px solid rgba(255,255,255,0.10)",
-              borderRadius: "999px",
-              background: "transparent",
-              color: "rgba(245,238,231,0.45)",
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontSize: "clamp(0.85rem, 1.8vw, 1rem)",
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              cursor: "pointer",
-              transition: "all 0.28s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = "rgba(245,238,231,0.7)";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = "rgba(245,238,231,0.45)";
-              e.currentTarget.style.borderColor = "rgba(255,255,255,0.10)";
-            }}
+            containerClassName="forgivenessChoiceButton forgivenessChoiceButton--no"
+            className="forgivenessChoiceButton__inner"
           >
             No
-          </button>
+          </HoverBorderGradient>
         </div>
         <style>
           {`

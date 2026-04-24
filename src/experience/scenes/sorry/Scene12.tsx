@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 import { scene12 } from "./scenes/scene-12/content";
+import "./Scene12.css";
 
 type Scene12Props = {
   onComplete: () => void;
@@ -81,42 +83,23 @@ function Scene12Overlay({
             {line.text}
           </p>
         ))}
-        <button
+        <HoverBorderGradient
+          as="button"
           type="button"
           disabled={!buttonReady}
           onClick={onComplete}
+          containerClassName={`scene12ContinueButton${buttonReady ? " isReady" : ""}`}
+          className="scene12ContinueButton__inner"
           style={{
-            marginTop: "2.8rem",
-            padding: "0.85rem 2.4rem",
-            border: "1px solid rgba(255,255,255,0.18)",
-            borderRadius: "999px",
-            background: "rgba(255,255,255,0.06)",
-            color: "rgba(245,238,231,0.7)",
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: "clamp(0.78rem, 1.6vw, 0.9rem)",
-            letterSpacing: "0.2em",
-            textTransform: "uppercase",
-            cursor: buttonReady ? "pointer" : "default",
             opacity: buttonReady ? 1 : 0.35,
             pointerEvents: buttonReady ? "auto" : "none",
             transform: isVisible ? "translate3d(0, 0, 0)" : "translate3d(0, 10px, 0)",
-            transition:
-              "opacity 800ms ease, transform 800ms ease, background 280ms ease, color 280ms ease, border-color 280ms ease",
-            transitionDelay: `${buttonDelay}s, ${buttonDelay}s, 0s, 0s, 0s`,
-          }}
-          onMouseEnter={(e) => {
-            if (!buttonReady) return;
-            e.currentTarget.style.background = "rgba(255,255,255,0.12)";
-            e.currentTarget.style.color = "rgba(245,238,231,0.95)";
-          }}
-          onMouseLeave={(e) => {
-            if (!buttonReady) return;
-            e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-            e.currentTarget.style.color = "rgba(245,238,231,0.7)";
+            transition: "opacity 800ms ease, transform 800ms ease",
+            transitionDelay: `${buttonDelay}s, ${buttonDelay}s`,
           }}
         >
           Continue
-        </button>
+        </HoverBorderGradient>
       </div>
     </div>
   );

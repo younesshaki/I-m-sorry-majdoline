@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 import "./SorryTitleCard.css";
 
 const sorryTitleBackground = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorryentry2.png";
@@ -64,14 +65,16 @@ export default function SorryTitleCard({ onPlay }: SorryTitleCardProps) {
         <p className="sorryTitleCard__text sorryTitleCard__fade">
           I need you to see what I failed to protect.
         </p>
-        <button
+        <HoverBorderGradient
+          as="button"
           type="button"
-          className="sorryTitleCard__play sorryTitleCard__fade"
+          containerClassName="sorryTitleCard__play sorryTitleCard__fade"
+          className="sorryTitleCard__playInner"
           onClick={handlePlay}
           disabled={isLeaving}
         >
           Play
-        </button>
+        </HoverBorderGradient>
       </div>
     </div>
   );

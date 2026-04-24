@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { useUiSounds } from "../audio/useUiSounds";
 import { checkExistingSession, loginOrRegister } from "../../lib/authService";
+import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import "../loaders/preloader/styles.css";
 const preloadGateBackground = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorry-entry.png";
 
@@ -19,6 +20,11 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_username: "letters, numbers and underscores only (2–30 chars)",
   network_error: "something went wrong, try again",
 };
+
+const USERNAME_PLACEHOLDERS = ["choose a name"];
+const PASSWORD_PLACEHOLDERS = [
+  "the password is the number of letters in the birthday jar + baby yoda's name",
+];
 
 export default function PreloadGate({ onStart }: PreloadGateProps) {
   const { playGateClick, playHover } = useUiSounds();
@@ -129,10 +135,12 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
         <div ref={authRef} className="pgAuth">
           <form className="pgAuth__form" onSubmit={handleAuthSubmit} noValidate>
             <p className="pgAuth__item pgAuth__eyebrow">For Dounia</p>
-            <input
-              className="pgAuth__item pgAuth__input"
+            <PlaceholdersAndVanishInput
+              className="pgAuth__item pgAuth__vanishInput"
+              inputClassName="pgAuth__vanishInputField"
+              placeholderClassName="pgAuth__vanishPlaceholder"
+              placeholders={USERNAME_PLACEHOLDERS}
               type="text"
-              placeholder="choose a name"
               value={username}
               onChange={(e) => { setUsername(e.target.value); setErrorKey(null); }}
               autoComplete="username"
@@ -140,10 +148,12 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
               spellCheck={false}
               disabled={busy}
             />
-            <input
-              className="pgAuth__item pgAuth__input pgAuth__input--password"
+            <PlaceholdersAndVanishInput
+              className="pgAuth__item pgAuth__vanishInput pgAuth__vanishInput--password"
+              inputClassName="pgAuth__vanishInputField"
+              placeholderClassName="pgAuth__vanishPlaceholder pgAuth__vanishPlaceholder--password"
+              placeholders={PASSWORD_PLACEHOLDERS}
               type="password"
-              placeholder="the password is the number of letters in the birthday jar + baby yoda's name"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setErrorKey(null); }}
               autoComplete="current-password"

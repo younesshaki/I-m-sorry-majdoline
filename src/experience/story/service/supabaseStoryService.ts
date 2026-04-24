@@ -87,6 +87,7 @@ class SupabaseStoryService implements StoryService {
   private state: StoryState = getDefaultState();
   private listeners = new Set<(state: StoryState) => void>();
   private userId: string | null = null;
+  private persistQueue: Promise<void> = Promise.resolve();
 
   getState(): StoryState {
     return this.state;
@@ -270,7 +271,8 @@ class SupabaseStoryService implements StoryService {
   async resetState(): Promise<StoryState> {
     this.state = getDefaultState();
     this.notify();
-    await this.persistToSupabase();
+    this.persistToLocal();
+    await this.queuePersistToSupabase(this.state);
     return this.state;
   }
 
@@ -292,30 +294,37 @@ class SupabaseStoryService implements StoryService {
   private async commit(
     updater: (state: StoryState) => StoryState
   ): Promise<StoryState> {
-    this.state = {
+    const nextState = {
       ...updater(this.state),
       updatedAt: now(),
     };
+    this.state = nextState;
 
     // Optimistic: notify listeners immediately
     this.notify();
 
-    // Persist to backend (fire-and-forget, non-blocking)
-    this.persistToSupabase();
-
     // Also persist to localStorage as a resilient cache
     this.persistToLocal();
 
-    return this.state;
+    // Keep backend writes ordered so an older state cannot overwrite a newer choice.
+    await this.queuePersistToSupabase(nextState);
+
+    return nextState;
   }
 
-  private async persistToSupabase(): Promise<void> {
+  private queuePersistToSupabase(state: StoryState): Promise<void> {
+    const persistJob = this.persistQueue.then(() => this.persistToSupabase(state));
+    this.persistQueue = persistJob.catch(() => undefined);
+    return persistJob;
+  }
+
+  private async persistToSupabase(state: StoryState = this.state): Promise<void> {
     if (!this.userId) return;
 
     try {
       const { error } = await supabase
         .from("story_states")
-        .upsert(toDbRow(this.state, this.userId), {
+        .upsert(toDbRow(state, this.userId), {
           onConflict: "user_id",
         });
 

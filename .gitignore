@@ -36,6 +36,8 @@ dist-ssr
 *.otf
 *.ttf
 *.png
+!src/experience/ui/ChatGPT Image Apr 25, 2026, 12_07_26 AM.png
+!src/experience/ui/ChatGPT Image Apr 25, 2026, 12_08_42 AM.png
 *.jpg
 *.jpeg
 *.gif
@@ -48,4 +50,7 @@ dist-ssr
 
 # Build output
 dist/
+
+# Local Supabase CLI state
+supabase/.temp/
 .vercel

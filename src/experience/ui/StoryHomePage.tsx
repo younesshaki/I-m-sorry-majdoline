@@ -10,6 +10,13 @@ import {
   type PartDisplayInfo,
 } from "../story/selectors";
 import CinematicShell from "./CinematicShell";
+import {
+  CardBody,
+  CardContainer,
+  CardItem,
+} from "@/components/ui/3d-card";
+import sorryOptionImage from "./ChatGPT Image Apr 25, 2026, 12_07_26 AM.png";
+import giftOptionImage from "./ChatGPT Image Apr 25, 2026, 12_08_42 AM.png";
 import "./StoryHomePage.css";
 
 type StoryHomePageProps = {
@@ -138,10 +145,18 @@ export function PartGroup({
   );
 }
 
-function GiftCard({
+function StoryOptionCard({
+  title,
+  actionLabel,
+  imageSrc,
+  imageAlt,
   unlocked,
   onSelect,
 }: {
+  title: string;
+  actionLabel: string;
+  imageSrc: string;
+  imageAlt: string;
   unlocked: boolean;
   onSelect?: () => void;
 }) {
@@ -158,7 +173,7 @@ function GiftCard({
 
   return (
     <div
-      className={`storyHome__chapterCard storyHome__chapterCard--standalone storyHome__giftCard storyHome__chapterCard--${unlocked ? "available" : "locked"}`}
+      className={`storyHome__option3dWrap storyHome__option3dWrap--${unlocked ? "available" : "locked"}`}
       onMouseEnter={unlocked ? playHover : undefined}
       onFocus={unlocked ? playHover : undefined}
       onClick={unlocked ? handleSelect : undefined}
@@ -175,12 +190,32 @@ function GiftCard({
           : undefined
       }
     >
-      <h4 className="storyHome__chapterTitle">
-        The Gift I Never Got to Give
-      </h4>
-      <p className="storyHome__chapterStandaloneHint">
-        {unlocked ? "Open" : "Locked"}
-      </p>
+      <CardContainer
+        containerClassName="storyHome__option3dContainer"
+        className="storyHome__option3dPlane"
+      >
+        <CardBody className="storyHome__option3dBody group/card">
+          <CardItem translateZ="70" className="storyHome__option3dTitle">
+            {title}
+          </CardItem>
+          <CardItem
+            translateZ="95"
+            rotateX={8}
+            rotateZ={-2}
+            className="storyHome__option3dImageSlot"
+          >
+            <img className="storyHome__option3dImage" src={imageSrc} alt={imageAlt} />
+          </CardItem>
+          <CardItem
+            translateZ={44}
+            translateY={8}
+            as="p"
+            className="storyHome__option3dAction"
+          >
+            {actionLabel}
+          </CardItem>
+        </CardBody>
+      </CardContainer>
     </div>
   );
 }
@@ -291,15 +326,21 @@ export default function StoryHomePage({
           <section className="storyHome__singleChapter">
             <p className="storyHome__singleEyebrow">For Dounia</p>
             <div className="storyHome__dualCards">
-              <ChapterCard
-                chapter={standaloneChapter}
-                globalNumber={1}
-                standalone
+              <StoryOptionCard
+                title={standaloneChapter.definition.title}
+                actionLabel="Open"
+                imageSrc={sorryOptionImage}
+                imageAlt="Red glowing tulip for the Sorry chapter"
+                unlocked
                 onSelect={() =>
                   onEnter(standaloneChapter.partIndex, standaloneChapter.chapterIndex)
                 }
               />
-              <GiftCard
+              <StoryOptionCard
+                title="The Gift I Never Got to Give"
+                actionLabel="Locked"
+                imageSrc={giftOptionImage}
+                imageAlt="Red glowing locked gift chapter"
                 unlocked={false}
                 onSelect={undefined}
               />
