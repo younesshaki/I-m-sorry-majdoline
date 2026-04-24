@@ -1,6 +1,7 @@
 import type { LoaderAudio } from "../shared/types";
 import { Loader } from "./Loader";
-import loopUrl from "./audio/here comes the sun loaderA.mp3";
+
+const loopUrl = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/here-comes-the-sun-loaderA.mp3";
 
 export const loaderAudio: LoaderAudio | null = {
   loop: loopUrl,
