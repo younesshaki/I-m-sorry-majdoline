@@ -48,3 +48,4 @@ dist-ssr
 
 # Build output
 dist/
+.vercel
