@@ -6,6 +6,8 @@ export type LoaderAudio = {
   loop?: string;
   sfx?: string;
   volume?: number;
+  fadeInMs?: number;
+  fadeOutMs?: number;
 };
 
 export type LoaderComponentProps = {

@@ -3,7 +3,7 @@ import gsap from "gsap";
 import { useUiSounds } from "../audio/useUiSounds";
 import { checkExistingSession, loginOrRegister } from "../../lib/authService";
 import "../loaders/preloader/styles.css";
-import preloadGateVideo from "../../assets/preload/preload-gate.mp4";
+import preloadGateBackground from "../../assets/backgrounds/sorry-entry.png";
 
 type Phase = "checking" | "auth" | "ready";
 
@@ -22,14 +22,11 @@ const ERROR_MESSAGES: Record<string, string> = {
 
 export default function PreloadGate({ onStart }: PreloadGateProps) {
   const { playGateClick, playHover } = useUiSounds();
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const startTimeoutRef = useRef<number | null>(null);
   const authRef = useRef<HTMLDivElement | null>(null);
   const buttonShellRef = useRef<HTMLDivElement | null>(null);
 
   const [phase, setPhase] = useState<Phase>("checking");
-  const [videoReady, setVideoReady] = useState(false);
-  const [audioEnabled, setAudioEnabled] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
 
   const [username, setUsername] = useState("");
@@ -67,19 +64,6 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
       { autoAlpha: 1, scale: 1, duration: 1.2, ease: "power3.out" }
     );
   }, [phase]);
-
-  // Video setup
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = true;
-    const handleCanPlay = () => {
-      setVideoReady(true);
-      video.play().catch(() => {});
-    };
-    video.addEventListener("canplay", handleCanPlay);
-    return () => video.removeEventListener("canplay", handleCanPlay);
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -126,37 +110,18 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
     if (isStarting) return;
     setIsStarting(true);
     playGateClick();
-    const video = videoRef.current;
-    if (video) {
-      video.muted = true;
-      setAudioEnabled(false);
-    }
     startTimeoutRef.current = window.setTimeout(() => {
       onStart();
     }, 1080);
-  };
-
-  const handleAudioToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const video = videoRef.current;
-    if (!video) return;
-    const shouldMute = event.target.checked;
-    video.muted = shouldMute;
-    setAudioEnabled(!shouldMute);
-    if (!shouldMute) video.play().catch(() => {});
   };
 
   const busy = submitting;
 
   return (
     <div className="preloadGate">
-      <video
-        ref={videoRef}
-        className="preloadGateVideo"
-        src={preloadGateVideo}
-        autoPlay
-        loop
-        playsInline
-        preload="auto"
+      <div
+        className="preloadGateImage"
+        style={{ backgroundImage: `url(${preloadGateBackground})` }}
       />
 
       {/* Auth form — shown before login */}
@@ -221,35 +186,6 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
         </div>
       ) : null}
 
-      <div className="preloadGateAudioControls" aria-label="audio controls">
-        <input
-          id="preloadGateAudioToggle"
-          type="checkbox"
-          checked={!audioEnabled}
-          onChange={handleAudioToggle}
-          disabled={!videoReady}
-        />
-        <label htmlFor="preloadGateAudioToggle" className="toggleSwitch">
-          <div className="speaker">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 75 75">
-              <path
-                d="M39.389,13.769 L22.235,28.606 L6,28.606 L6,47.699 L21.989,47.699 L39.389,62.75 L39.389,13.769z"
-                style={{ stroke: "#fff", strokeWidth: 5, strokeLinejoin: "round", fill: "#fff" }}
-              />
-              <path
-                d="M48,27.6a19.5,19.5 0 0 1 0,21.4M55.1,20.5a30,30 0 0 1 0,35.6M61.6,14a38.8,38.8 0 0 1 0,48.6"
-                style={{ fill: "none", stroke: "#fff", strokeWidth: 5, strokeLinecap: "round" }}
-              />
-            </svg>
-          </div>
-          <div className="mute-speaker">
-            <svg viewBox="0 0 75 75" stroke="#fff" strokeWidth="5">
-              <path d="m39,14-17,15H6V48H22l17,15z" fill="#fff" strokeLinejoin="round" />
-              <path d="m49,26 20,24m0-24-20,24" fill="#fff" strokeLinecap="round" />
-            </svg>
-          </div>
-        </label>
-      </div>
     </div>
   );
 }

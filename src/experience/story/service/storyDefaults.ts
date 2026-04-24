@@ -1,6 +1,7 @@
 import { getFirstSceneId, storyManifest } from "../manifest";
 import type {
   StoryAchievement,
+  StoryAnalytics,
   StoryCheckpoint,
   StoryChoice,
   StoryFlag,
@@ -13,6 +14,14 @@ export const STORY_STATE_VERSION = 1;
 export const CONTENT_VERSION = "v1";
 
 export const now = () => new Date().toISOString();
+
+const getDefaultAnalytics = (): StoryAnalytics => ({
+  sceneDurationsMs: {},
+  currentSceneId: null,
+  currentSceneEnteredAt: null,
+  finalChoicePromptStartedAt: null,
+  finalChoiceResponseMs: null,
+});
 
 export const getDefaultState = (): StoryState => {
   const firstPart = storyManifest[0];
@@ -28,6 +37,7 @@ export const getDefaultState = (): StoryState => {
     completedChapterIds: [],
     flags: {},
     choices: [],
+    analytics: getDefaultAnalytics(),
     achievements: {},
     preferences: {
       soundEnabled: true,
@@ -47,6 +57,16 @@ const sanitizeFlags = (flags: Record<string, StoryFlag> | undefined) =>
   flags ?? {};
 
 const sanitizeChoices = (choices: StoryChoice[] | undefined) => choices ?? [];
+
+const sanitizeAnalytics = (
+  analytics: Partial<StoryAnalytics> | undefined
+): StoryAnalytics => ({
+  sceneDurationsMs: analytics?.sceneDurationsMs ?? {},
+  currentSceneId: analytics?.currentSceneId ?? null,
+  currentSceneEnteredAt: analytics?.currentSceneEnteredAt ?? null,
+  finalChoicePromptStartedAt: analytics?.finalChoicePromptStartedAt ?? null,
+  finalChoiceResponseMs: analytics?.finalChoiceResponseMs ?? null,
+});
 
 const sanitizeAchievements = (
   achievements: Record<string, StoryAchievement> | undefined
@@ -89,6 +109,7 @@ export const normalizeState = (
       nextState.completedChapterIds ?? base.completedChapterIds,
     flags: sanitizeFlags(nextState.flags),
     choices: sanitizeChoices(nextState.choices),
+    analytics: sanitizeAnalytics(nextState.analytics),
     achievements: sanitizeAchievements(nextState.achievements),
     preferences: sanitizePreferences(nextState.preferences),
     resumeCheckpoint: sanitizeCheckpoint(nextState.resumeCheckpoint),

@@ -28,7 +28,6 @@ import {
 } from "./story/manifest";
 
 import { DebugOverlay, DebugPanel } from "./utils/DebugOverlay";
-import { SyncPreviewPanel } from "./utils/SyncPreviewPanel";
 
 // Wrapper component to handle the hook and conditional rendering
 function DebugWrapper({ enabled }: { enabled: boolean }) {
@@ -414,8 +413,8 @@ export default function Experience({
             />
             <Suspense fallback={null}>
               <SceneManager
-                currentChapter={visibleChapterIndex + 1}
-                currentPart={visiblePartIndex + 1}
+                
+                
                 scenesHidden={scenesHidden}
                 onGoHome={onGoHome}
                 onSorrySceneChange={setSorrySceneIndex}
@@ -460,8 +459,6 @@ export default function Experience({
         )}
         {/* Debug panel rendered outside Canvas to avoid R3F reconciler issues */}
         <DebugPanel enabled={devToolsEnabled && debugEnabled} />
-        {/* Sync preview panel — toggle with S key */}
-        <SyncPreviewPanel enabled={devToolsEnabled && syncPreviewEnabled} />
         {/* ScrollIndicator rendered outside Canvas to avoid R3F reconciler issues */}
         <ScrollIndicator />
       </div>

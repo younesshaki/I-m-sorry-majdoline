@@ -9,7 +9,12 @@ import {
 } from "react";
 import { localStoryService } from "./service/localStoryService";
 import { supabaseStoryService } from "./service/supabaseStoryService";
-import type { StoryProgressPayload, StoryService, StoryState } from "./types";
+import type {
+  StoryAnalytics,
+  StoryProgressPayload,
+  StoryService,
+  StoryState,
+} from "./types";
 
 type StoryContextValue = {
   isReady: boolean;
@@ -28,6 +33,7 @@ type StoryContextValue = {
     choiceId: string,
     payload?: StoryProgressPayload
   ) => Promise<StoryState>;
+  setAnalytics: (analytics: StoryAnalytics) => Promise<StoryState>;
   unlockFlag: (flagKey: string, sourceId?: string) => Promise<StoryState>;
   completeScene: (sceneId: string) => Promise<StoryState>;
   completeChapter: (chapterId: string) => Promise<StoryState>;
@@ -112,6 +118,10 @@ export function StoryProvider({ children }: PropsWithChildren) {
       service.recordChoice(sceneId, choiceId, payload),
     [service]
   );
+  const setAnalytics = useCallback(
+    (analytics: StoryAnalytics) => service.setAnalytics(analytics),
+    [service]
+  );
   const unlockFlag = useCallback(
     (flagKey: string, sourceId?: string) => service.unlockFlag(flagKey, sourceId),
     [service]
@@ -138,6 +148,7 @@ export function StoryProvider({ children }: PropsWithChildren) {
       setCurrentLocation,
       saveCheckpoint,
       recordChoice,
+      setAnalytics,
       unlockFlag,
       completeScene,
       completeChapter,
@@ -152,6 +163,7 @@ export function StoryProvider({ children }: PropsWithChildren) {
       resetState,
       saveCheckpoint,
       service,
+      setAnalytics,
       setCurrentLocation,
       state,
       unlockFlag,

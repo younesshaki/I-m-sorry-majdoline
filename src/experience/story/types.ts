@@ -23,6 +23,14 @@ export type StoryChoice = {
   recordedAt: string;
 };
 
+export type StoryAnalytics = {
+  sceneDurationsMs: Record<string, number>;
+  currentSceneId: string | null;
+  currentSceneEnteredAt: string | null;
+  finalChoicePromptStartedAt: string | null;
+  finalChoiceResponseMs: number | null;
+};
+
 export type StoryAchievement = {
   id: string;
   unlockedAt: string;
@@ -42,6 +50,7 @@ export type StoryState = {
   completedChapterIds: string[];
   flags: Record<string, StoryFlag>;
   choices: StoryChoice[];
+  analytics: StoryAnalytics;
   achievements: Record<string, StoryAchievement>;
   preferences: StoryPreferences;
   resumeCheckpoint: StoryCheckpoint | null;
@@ -98,6 +107,7 @@ export interface StoryService {
     choiceId: string,
     payload?: StoryProgressPayload
   ): Promise<StoryState>;
+  setAnalytics(analytics: StoryAnalytics): Promise<StoryState>;
   unlockFlag(flagKey: string, sourceId?: string): Promise<StoryState>;
   completeScene(sceneId: string): Promise<StoryState>;
   completeChapter(chapterId: string): Promise<StoryState>;

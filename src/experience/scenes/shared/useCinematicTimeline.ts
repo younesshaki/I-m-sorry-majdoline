@@ -2,7 +2,7 @@ import { useEffect, useRef, type RefObject } from "react";
 import gsap from "gsap";
 import { useSoundSettings } from "../../soundContext";
 import { debugState } from "../../utils/DebugOverlay";
-import { audioSyncRegistry } from "../part1/chapter1/audioSync";
+import { audioSyncRegistry } from "./audioSync";
 
 const devLog = (...args: unknown[]) => {
   if (import.meta.env.DEV) {

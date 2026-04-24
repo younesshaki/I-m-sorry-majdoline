@@ -65,8 +65,8 @@
 }
 
 .loaderBackdrop-pre {
-  --loader-backdrop-start: #ffffff;
-  --loader-backdrop-end: #f5f5f5;
+  --loader-backdrop-start: #000000;
+  --loader-backdrop-end: #0a0a0a;
 }
 
 .loaderSoundButton {

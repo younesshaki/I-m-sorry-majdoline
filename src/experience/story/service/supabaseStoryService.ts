@@ -9,6 +9,7 @@ import {
   readLocalStateIfPresent,
 } from "./storyDefaults";
 import type {
+  StoryAnalytics,
   StoryCheckpoint,
   StoryChoice,
   StoryPreferences,
@@ -34,6 +35,7 @@ function toDbRow(state: StoryState, userId: string): DbRow {
     completed_chapter_ids: state.completedChapterIds,
     flags: state.flags,
     choices: state.choices,
+    analytics: state.analytics,
     achievements: state.achievements,
     preferences: state.preferences,
     resume_checkpoint: state.resumeCheckpoint,
@@ -52,6 +54,7 @@ function fromDbRow(row: DbRow): StoryState {
     completedChapterIds: (row.completed_chapter_ids as string[]) ?? [],
     flags: (row.flags as StoryState["flags"]) ?? {},
     choices: (row.choices as StoryState["choices"]) ?? [],
+    analytics: (row.analytics as StoryAnalytics) ?? undefined,
     achievements: (row.achievements as StoryState["achievements"]) ?? {},
     preferences: (row.preferences as StoryState["preferences"]) ?? undefined,
     resumeCheckpoint:
@@ -201,11 +204,17 @@ class SupabaseStoryService implements StoryService {
       ...state,
       choices: [
         ...state.choices.filter(
-          (existing) =>
-            !(existing.sceneId === sceneId && existing.choiceId === choiceId)
+          (existing) => existing.sceneId !== sceneId
         ),
         nextChoice,
       ],
+    }));
+  }
+
+  async setAnalytics(analytics: StoryAnalytics): Promise<StoryState> {
+    return this.commit((state) => ({
+      ...state,
+      analytics,
     }));
   }
 

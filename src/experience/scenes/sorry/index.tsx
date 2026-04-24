@@ -50,7 +50,7 @@ export default function SorryChapter({ isActive = true, onGoHome, onSceneChange 
     onSceneChange?.(activeSceneIndex);
   }, [activeSceneIndex, onSceneChange]);
 
-  const { recordChoice, setAnalytics, setCurrentLocation, state: storyState, unlockFlag } = useStory();
+  const { recordChoice, setAnalytics, setCurrentLocation, state: storyState } = useStory();
 
   useSorrySceneMusic(safeSceneIndex, isActive && phase === "cinematic");
 
@@ -141,9 +141,8 @@ export default function SorryChapter({ isActive = true, onGoHome, onSceneChange 
       responseTimeMs,
       selectedAt: new Date(nowMs).toISOString(),
     });
-    await unlockFlag("gift_unlocked", finalChoiceSceneId);
     setPhase("scene12");
-  }, [finalChoiceSceneId, recordChoice, setAnalytics, storyState.analytics, unlockFlag]);
+  }, [finalChoiceSceneId, recordChoice, setAnalytics, storyState.analytics]);
 
   const handleNo = useCallback(async () => {
     const nowMs = Date.now();

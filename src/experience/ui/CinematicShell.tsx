@@ -1,35 +1,11 @@
-import { useEffect, useRef, useState, type PropsWithChildren } from "react";
-import preloadGateVideo from "../../assets/preload/YTDown.com_YouTube_Abstract-White-Background-4K-Motion-Grap_Media_kwmHaXUAa0M_001_1080p.mp4";
+import type { PropsWithChildren } from "react";
+import sharedBackgroundImage from "../../assets/backgrounds/sorry-entry.png";
 
 type CinematicShellProps = PropsWithChildren<{
   className?: string;
 }>;
 
-/**
- * Full-viewport immersive shell with the looping background video.
- * Reusable across homepage, preload gate, or any atmospheric screen.
- */
 export default function CinematicShell({ children, className }: CinematicShellProps) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const [videoReady, setVideoReady] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.muted = true;
-
-    const handleCanPlay = () => {
-      setVideoReady(true);
-      video.play().catch(() => {});
-    };
-
-    video.addEventListener("canplay", handleCanPlay);
-    return () => {
-      video.removeEventListener("canplay", handleCanPlay);
-    };
-  }, []);
-
   return (
     <div
       className={`cinematicShell${className ? ` ${className}` : ""}`}
@@ -40,23 +16,15 @@ export default function CinematicShell({ children, className }: CinematicShellPr
         overflow: "hidden",
       }}
     >
-      <video
-        ref={videoRef}
-        className="cinematicShell__video"
-        src={preloadGateVideo}
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
+      <div
+        className="cinematicShell__image"
         style={{
           position: "absolute",
           inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          opacity: videoReady ? 1 : 0,
-          transition: "opacity 1.2s ease",
+          backgroundImage: `url(${sharedBackgroundImage})`,
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",
         }}
       />
       {/* Dark overlay for readability */}

@@ -3,7 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useSoundSettings } from "../../soundContext";
 import { debugState } from "../../utils/DebugOverlay";
-import { audioSyncRegistry } from "../part1/chapter1/audioSync";
+import { audioSyncRegistry } from "./audioSync";
 
 // Register ScrollTrigger (may already be registered by useSmoothScroll, but safe to call again)
 gsap.registerPlugin(ScrollTrigger);

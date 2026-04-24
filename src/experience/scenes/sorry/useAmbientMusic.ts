@@ -1,1 +1,1 @@
-export { useAmbientMusic } from "../part1/chapter1/useAmbientMusic";
+export { useAmbientMusic } from "../shared/useAmbientMusic";

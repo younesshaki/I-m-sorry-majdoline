@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import "./SorryTitleCard.css";
+import sorryTitleBackground from "../scenes/sorry/background video/sorryentry2.png";
 
 type SorryTitleCardProps = {
   onPlay: () => void;
@@ -51,14 +52,9 @@ export default function SorryTitleCard({ onPlay }: SorryTitleCardProps) {
 
   return (
     <div ref={rootRef} className="sorryTitleCard">
-      <video
-        className="sorryTitleCard__video"
-        src="/sorry-bg.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-        preload="auto"
+      <div
+        className="sorryTitleCard__image"
+        style={{ backgroundImage: `url(${sorryTitleBackground})` }}
       />
       <div className="sorryTitleCard__overlay" />
       <div className="sorryTitleCard__content">

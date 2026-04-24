@@ -14,7 +14,6 @@ import "./StoryHomePage.css";
 
 type StoryHomePageProps = {
   onEnter: (partIndex: number, chapterIndex: number) => void;
-  onEnterNomad?: () => void;
 };
 
 const VISIBLE_CHAPTER_IDS = ["sorry-chapter-1"];
@@ -228,10 +227,9 @@ function UnlockablesPlaceholder() {
 
 export default function StoryHomePage({
   onEnter,
-  onEnterNomad,
 }: StoryHomePageProps) {
   const { isReady, state } = useStory();
-  const giftUnlocked = state.flags["gift_unlocked"]?.value === true;
+  const giftUnlocked = false; // permanently locked
 
   const parts = useMemo(
     () => (isReady ? getPartDisplayList(state) : []),
@@ -302,8 +300,8 @@ export default function StoryHomePage({
                 }
               />
               <GiftCard
-                unlocked={giftUnlocked}
-                onSelect={onEnterNomad}
+                unlocked={false}
+                onSelect={undefined}
               />
             </div>
           </section>

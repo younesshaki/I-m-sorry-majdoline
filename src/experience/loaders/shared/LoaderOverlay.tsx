@@ -37,14 +37,38 @@ export const LoaderOverlay = memo(({ visible, variant, text }: LoaderOverlayProp
   useEffect(() => {
     const canPlay = visible && audio && soundEnabled && !soundBlocked;
     if (!canPlay) {
-      if (audioRef.current?.loop) {
-        audioRef.current.loop.pause();
-        audioRef.current.loop.currentTime = 0;
-      }
-      if (audioRef.current?.sfx) {
-        audioRef.current.sfx.pause();
-        audioRef.current.sfx.currentTime = 0;
-      }
+      const fadeOutMs = audio?.fadeOutMs ?? 0;
+      const stopAudio = (element?: HTMLAudioElement) => {
+        if (!element) return;
+
+        if (fadeOutMs > 0 && element.volume > 0) {
+          const startVolume = element.volume;
+          const startTime = performance.now();
+
+          const tick = (now: number) => {
+            const progress = Math.min((now - startTime) / fadeOutMs, 1);
+            element.volume = startVolume * (1 - progress);
+
+            if (progress < 1) {
+              window.requestAnimationFrame(tick);
+              return;
+            }
+
+            element.pause();
+            element.currentTime = 0;
+            element.volume = startVolume;
+          };
+
+          window.requestAnimationFrame(tick);
+          return;
+        }
+
+        element.pause();
+        element.currentTime = 0;
+      };
+
+      stopAudio(audioRef.current?.loop);
+      stopAudio(audioRef.current?.sfx);
       audioRef.current = null;
       return;
     }
@@ -52,13 +76,27 @@ export const LoaderOverlay = memo(({ visible, variant, text }: LoaderOverlayProp
     const loopAudio = audio?.loop ? new Audio(audio.loop) : undefined;
     const sfxAudio = audio?.sfx ? new Audio(audio.sfx) : undefined;
     const volume = audio?.volume ?? 0.7;
+    const fadeInMs = audio?.fadeInMs ?? 0;
 
     if (loopAudio) {
       loopAudio.loop = true;
-      loopAudio.volume = volume;
+      loopAudio.volume = fadeInMs > 0 ? 0 : volume;
       const playPromise = loopAudio.play();
       if (playPromise?.catch) {
         playPromise.catch(() => {});
+      }
+
+      if (fadeInMs > 0) {
+        const startTime = performance.now();
+        const tick = (now: number) => {
+          const progress = Math.min((now - startTime) / fadeInMs, 1);
+          loopAudio.volume = volume * progress;
+          if (progress < 1) {
+            window.requestAnimationFrame(tick);
+          }
+        };
+
+        window.requestAnimationFrame(tick);
       }
     }
 

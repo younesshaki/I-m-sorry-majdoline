@@ -1,123 +1,27 @@
-import { useMemo, lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 
-const Part1Chapter1 = lazy(() => import("./scenes/part1/chapter1"));
-const Part1Chapter2 = lazy(() => import("./scenes/part1/chapter2"));
-const Part1Chapter3 = lazy(() => import("./scenes/part1/chapter3"));
-const Part1Chapter4 = lazy(() => import("./scenes/part1/chapter4"));
-
-const Part2Chapter1 = lazy(() => import("./scenes/part2/chapter5"));
-const Part2Chapter2 = lazy(() => import("./scenes/part2/chapter6"));
-const Part2Chapter3 = lazy(() => import("./scenes/part2/chapter7"));
-const Part2Chapter4 = lazy(() => import("./scenes/part2/chapter8"));
-
-const Part3Chapter2 = lazy(() => import("./scenes/part3/chapter10"));
-const Part3Chapter3 = lazy(() => import("./scenes/part3/chapter11"));
-const Part3Chapter4 = lazy(() => import("./scenes/part3/chapter12"));
-
-const Part4Chapter1 = lazy(() => import("./scenes/part4/chapter13"));
-const Part4Chapter2 = lazy(() => import("./scenes/part4/chapter14"));
-const Part4Chapter3 = lazy(() => import("./scenes/part4/chapter15"));
-const Part4Chapter4 = lazy(() => import("./scenes/part4/chapter16"));
-
-const Part5Chapter1 = lazy(() => import("./scenes/part5/chapter17"));
-const Part5Chapter2 = lazy(() => import("./scenes/part5/chapter18"));
-const Part5Chapter3 = lazy(() => import("./scenes/part5/chapter19"));
-const Part5Chapter4 = lazy(() => import("./scenes/part5/chapter20"));
-
-const Part6Chapter1 = lazy(() => import("./scenes/part6/chapter21"));
-const Part6Chapter2 = lazy(() => import("./scenes/part6/chapter22"));
-const Part6Chapter3 = lazy(() => import("./scenes/part6/chapter23"));
-const Part6Chapter4 = lazy(() => import("./scenes/part6/chapter24"));
-const Part6Chapter5 = lazy(() => import("./scenes/part6/chapter25"));
-const SorryChapter1 = lazy(() => import("./scenes/sorry"));
-
+const SorryChapter = lazy(() => import("./scenes/sorry"));
 
 interface SceneManagerProps {
-  currentChapter: number;
-  currentPart: number;
-  onRegisterGoTo?: (fn: (partIndex: number, chapterIndex: number) => void) => void;
   scenesHidden?: boolean;
   onGoHome?: () => void;
+  onSorrySceneChange?: (index: number) => void;
 }
 
 export default function SceneManager({
-  currentChapter,
-  currentPart,
   scenesHidden = false,
   onGoHome,
+  onSorrySceneChange,
 }: SceneManagerProps) {
-  const activeKey = `part${currentPart}-chapter${currentChapter}`;
-
-  const sceneToRender = useMemo(() => {
-    const Component = getChapterComponent(currentPart, currentChapter);
-    if (!Component) {
-      return null;
-    }
-
-    return {
-      key: activeKey,
-      component: <Component isActive={!scenesHidden} onGoHome={onGoHome} />,
-    };
-  }, [activeKey, currentChapter, currentPart, scenesHidden, onGoHome]);
-
   return (
-    <>
-      {sceneToRender ? (
-        <group key={sceneToRender.key} visible={!scenesHidden}>
-          <Suspense fallback={null}>
-            {sceneToRender.component}
-          </Suspense>
-        </group>
-      ) : null}
-    </>
+    <group visible={!scenesHidden}>
+      <Suspense fallback={null}>
+        <SorryChapter
+          isActive={!scenesHidden}
+          onGoHome={onGoHome}
+          onSceneChange={onSorrySceneChange}
+        />
+      </Suspense>
+    </group>
   );
-}
-
-type SceneComponent = React.ComponentType<{ isActive?: boolean; onGoHome?: () => void }>;
-
-function getChapterComponent(part: number, chapter: number): SceneComponent | null {
-  switch (part) {
-    case 1:
-      if (chapter === 1) return Part1Chapter1 as SceneComponent;
-      if (chapter === 2) return Part1Chapter2 as SceneComponent;
-      if (chapter === 3) return Part1Chapter3 as SceneComponent;
-      if (chapter === 4) return Part1Chapter4 as SceneComponent;
-      break;
-    case 2:
-      if (chapter === 1) return Part2Chapter1 as SceneComponent;
-      if (chapter === 2) return Part2Chapter2 as SceneComponent;
-      if (chapter === 3) return Part2Chapter3 as SceneComponent;
-      if (chapter === 4) return Part2Chapter4 as SceneComponent;
-      break;
-    case 3:
-      if (chapter === 2) return Part3Chapter2 as SceneComponent;
-      if (chapter === 3) return Part3Chapter3 as SceneComponent;
-      if (chapter === 4) return Part3Chapter4 as SceneComponent;
-      break;
-    case 4:
-      if (chapter === 1) return Part4Chapter1 as SceneComponent;
-      if (chapter === 2) return Part4Chapter2 as SceneComponent;
-      if (chapter === 3) return Part4Chapter3 as SceneComponent;
-      if (chapter === 4) return Part4Chapter4 as SceneComponent;
-      break;
-    case 5:
-      if (chapter === 1) return Part5Chapter1 as SceneComponent;
-      if (chapter === 2) return Part5Chapter2 as SceneComponent;
-      if (chapter === 3) return Part5Chapter3 as SceneComponent;
-      if (chapter === 4) return Part5Chapter4 as SceneComponent;
-      break;
-    case 6:
-      if (chapter === 1) return Part6Chapter1 as SceneComponent;
-      if (chapter === 2) return Part6Chapter2 as SceneComponent;
-      if (chapter === 3) return Part6Chapter3 as SceneComponent;
-      if (chapter === 4) return Part6Chapter4 as SceneComponent;
-      if (chapter === 5) return Part6Chapter5 as SceneComponent;
-      break;
-    case 7:
-      if (chapter === 1) return SorryChapter1 as SceneComponent;
-      break;
-    default:
-      return null;
-  }
-  return null;
 }

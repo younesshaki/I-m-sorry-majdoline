@@ -3,12 +3,11 @@ import { useCallback, useState } from "react";
 import { UiSoundProvider } from "./experience/audio/UiSoundProvider";
 import Experience from "./experience/Experience";
 import { StoryProvider } from "./experience/story/StoryProvider";
-import NomadHomePage from "./experience/ui/NomadHomePage";
 import PreloadGate from "./experience/ui/PreloadGate";
 import SorryTitleCard from "./experience/ui/SorryTitleCard";
 import StoryHomePage from "./experience/ui/StoryHomePage";
 
-type AppScreen = "gate" | "home" | "titlecard" | "experience" | "nomad-home";
+type AppScreen = "gate" | "home" | "titlecard" | "experience";
 
 const SORRY_ENTRY = {
   partIndex: 6,
@@ -39,7 +38,6 @@ export default function App() {
   );
 
   const handleStartExperience = useCallback(() => setScreen("experience"), []);
-  const handleEnterNomad = useCallback(() => setScreen("nomad-home"), []);
 
   return (
     <div style={{ width: "100%", height: "100%", margin: 0, padding: 0, overflow: "hidden" }}>
@@ -56,16 +54,8 @@ export default function App() {
                 initialChapterIndex={entryChapterIndex}
                 onGoHome={handleGoHome}
               />
-            ) : screen === "nomad-home" ? (
-              <NomadHomePage
-                onEnter={handleEnterExperience}
-                onGoHome={handleGoHome}
-              />
             ) : (
-              <StoryHomePage
-                onEnter={handleEnterExperience}
-                onEnterNomad={handleEnterNomad}
-              />
+              <StoryHomePage onEnter={handleEnterExperience} />
             )}
           </StoryProvider>
         )}

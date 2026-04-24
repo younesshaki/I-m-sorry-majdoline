@@ -5,6 +5,7 @@ import {
   now,
 } from "./storyDefaults";
 import type {
+  StoryAnalytics,
   StoryCheckpoint,
   StoryChoice,
   StoryPreferences,
@@ -109,14 +110,17 @@ class LocalStoryService implements StoryService {
       ...state,
       choices: [
         ...state.choices.filter(
-          (existingChoice) =>
-            !(
-              existingChoice.sceneId === sceneId &&
-              existingChoice.choiceId === choiceId
-            )
+          (existingChoice) => existingChoice.sceneId !== sceneId
         ),
         nextChoice,
       ],
+    }));
+  }
+
+  async setAnalytics(analytics: StoryAnalytics): Promise<StoryState> {
+    return this.commit((state) => ({
+      ...state,
+      analytics,
     }));
   }
 
