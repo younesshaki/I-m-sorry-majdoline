@@ -133,64 +133,54 @@
 
 .loading-progress-block {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  animation: progressBlockFadeIn 1s ease-out both;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+  column-gap: 2px;
+  row-gap: 0;
+  margin-top: 18px;
+  animation: progressBlockFadeIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.3s;
 }
 
 .loading-progress-number {
-  font-size: clamp(3.5rem, 10vw, 6rem);
-  font-weight: 200;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.95);
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.72);
   line-height: 1;
-  text-shadow:
-    0 0 40px rgba(255, 255, 255, 0.5),
-    0 0 80px rgba(255, 255, 255, 0.2),
-    0 2px 12px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 0 24px rgba(255, 255, 255, 0.18);
   font-variant-numeric: tabular-nums;
-  min-width: 3ch;
+  min-width: 2ch;
   text-align: right;
   display: inline-block;
 }
 
 .loading-progress-symbol {
-  font-size: clamp(1.2rem, 3vw, 2rem);
+  font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
   font-weight: 300;
-  color: rgba(255, 255, 255, 0.6);
-  align-self: flex-start;
-  margin-top: 0.6em;
-  letter-spacing: 0.05em;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 0.15em;
 }
 
 .loading-progress-label {
-  font-size: 0.7rem;
+  font-size: 0.58rem;
   font-weight: 400;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.45);
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
-  margin-top: 4px;
-}
-
-.loading-progress-block {
-  flex-direction: row;
-  align-items: baseline;
-  flex-wrap: wrap;
-  justify-content: center;
-  column-gap: 4px;
-  row-gap: 0;
-}
-
-.loading-progress-block .loading-progress-label {
+  color: rgba(255, 255, 255, 0.3);
   width: 100%;
   text-align: center;
-  margin-top: 8px;
+  margin-top: 5px;
 }
 
 @keyframes progressBlockFadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 

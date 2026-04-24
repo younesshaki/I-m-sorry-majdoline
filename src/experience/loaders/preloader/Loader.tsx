@@ -35,8 +35,21 @@ export function Loader({ className }: LoaderComponentProps) {
   const pct = displayed;
   const isReady = !active && pct >= 100;
 
+  const footer = (
+    <div className="loading-progress-block">
+      <span className="loading-progress-number">{pct}</span>
+      <span className="loading-progress-symbol">%</span>
+      <span className="loading-progress-label">
+        {isReady ? "ready" : "loading"}
+      </span>
+    </div>
+  );
+
   return (
-    <LoaderShell className={`loader-variant-preload${className ? ` ${className}` : ""}`}>
+    <LoaderShell
+      className={`loader-variant-preload${className ? ` ${className}` : ""}`}
+      footer={footer}
+    >
       <div className="sunbeam sunbeam-1" />
       <div className="sunbeam sunbeam-2" />
       <div className="sunbeam sunbeam-3" />
@@ -54,14 +67,6 @@ export function Loader({ className }: LoaderComponentProps) {
         <span className="petal" /><span className="petal" /><span className="center" />
       </div>
       <BirdSvg />
-
-      <div className="loading-progress-block">
-        <span className="loading-progress-number">{pct}</span>
-        <span className="loading-progress-symbol">%</span>
-        <span className="loading-progress-label">
-          {isReady ? "ready" : "loading"}
-        </span>
-      </div>
     </LoaderShell>
   );
 }

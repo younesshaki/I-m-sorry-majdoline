@@ -6,6 +6,7 @@ import { StoryProvider } from "./experience/story/StoryProvider";
 import PreloadGate from "./experience/ui/PreloadGate";
 import SorryTitleCard from "./experience/ui/SorryTitleCard";
 import StoryHomePage from "./experience/ui/StoryHomePage";
+import PhoneExperienceNotice from "./experience/ui/PhoneExperienceNotice";
 
 type AppScreen = "gate" | "home" | "titlecard" | "experience";
 
@@ -43,7 +44,10 @@ export default function App() {
     <div style={{ width: "100%", height: "100%", margin: 0, padding: 0, overflow: "hidden" }}>
       <UiSoundProvider>
         {screen === "gate" ? (
-          <PreloadGate onStart={handleGoHome} />
+          <>
+            <PhoneExperienceNotice />
+            <PreloadGate onStart={handleGoHome} />
+          </>
         ) : (
           <StoryProvider>
             {screen === "titlecard" ? (
