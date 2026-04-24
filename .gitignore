@@ -27,6 +27,7 @@ dist-ssr
 *.gltf
 *.mp4
 *.webm
+!src/experience/loaders/loader-f/media/Bat - Halloween.webm
 *.mp3
 *.wav
 *.ogg
