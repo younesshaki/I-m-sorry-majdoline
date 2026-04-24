@@ -3,7 +3,7 @@ import gsap from "gsap";
 import { useUiSounds } from "../audio/useUiSounds";
 import { checkExistingSession, loginOrRegister } from "../../lib/authService";
 import "../loaders/preloader/styles.css";
-import preloadGateBackground from "../../assets/backgrounds/sorry-entry.png";
+const preloadGateBackground = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorry-entry.png";
 
 type Phase = "checking" | "auth" | "ready";
 

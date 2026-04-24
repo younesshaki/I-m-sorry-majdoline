@@ -1,27 +1,23 @@
-import centerpieceModelUrl from "../models/baby_yoda_free_3d_by_oscar_creativo.glb?url";
-import octopusModelUrl from "../models/octopus_plush.glb?url";
-import pancakeModelUrl from "../models/pancake.glb?url";
-import roseModelUrl from "../models/piano_rose.glb?url";
-import stitchModelUrl from "../models/stitch_lilo__stitch_disney.glb?url";
-import backgroundVideoUrl from "../background video/No Copyright, Copyright Free Videos, sunset, beach, sea, waves - motics - Motion Backgrounds (1080p, h264).mp4?url";
-import blenderScene1Url from "../background video/blenderscene1.mp4?url";
-import blenderScene2Url from "../background video/blenderscene2.mp4?url";
-import blenderScene3Url from "../background video/blenderscene3.mp4?url";
-import blenderScene5Url from "../background video/blenderscene5.mp4?url";
-import blenderSceneFinalUrl from "../background video/blenderscenefinal.mp4?url";
+const CDN = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media";
 
 export const sorrySceneAssets = {
   models: {
-    centerpiece: centerpieceModelUrl,
-    octopus: octopusModelUrl,
-    pancake: pancakeModelUrl,
-    rose: roseModelUrl,
-    stitch: stitchModelUrl,
+    centerpiece: `${CDN}/models/baby_yoda_free_3d_by_oscar_creativo.glb`,
+    octopus:     `${CDN}/models/octopus_plush.glb`,
+    pancake:     `${CDN}/models/pancake.glb`,
+    rose:        `${CDN}/models/piano_rose.glb`,
+    stitch:      `${CDN}/models/stitch_lilo__stitch_disney.glb`,
   },
   audio: {},
   video: {
-    background: backgroundVideoUrl,
-    blenderScenes: [blenderScene1Url, blenderScene2Url, blenderScene3Url, blenderScene5Url, blenderSceneFinalUrl],
+    background:   `${CDN}/sunset.mp4`,
+    blenderScenes: [
+      `${CDN}/blenderscene1.mp4`,
+      `${CDN}/blenderscene2.mp4`,
+      `${CDN}/blenderscene3.mp4`,
+      `${CDN}/blenderscene5.mp4`,
+      `${CDN}/blenderscenefinal.mp4`,
+    ],
   },
 };
 

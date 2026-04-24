@@ -1,6 +1,7 @@
 import type { LoaderAudio } from "../shared/types";
 import { Loader } from "./Loader";
-import preloaderLoopUrl from "/Users/younesshaki/Documents/I-m-sorry-majdoline/src/experience/scenes/sorry/audio/ENHYPEN Fatal Trouble Lyrics (엔하이픈 Fatal Trouble 가사) [Color Coded Han_Rom_Eng]  ShadowByYoongi.mp3";
+
+const preloaderLoopUrl = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/enhypen-fatal-trouble.mp3";
 
 export const loaderAudio: LoaderAudio = {
   loop: preloaderLoopUrl,

@@ -1,7 +1,5 @@
-import enhypenFatalTrouble from "./ENHYPEN Fatal Trouble Lyrics (엔하이픈 Fatal Trouble 가사) [Color Coded Han_Rom_Eng]  ShadowByYoongi.mp3?url";
-import justinBieberGhost from "./Justin Bieber - Ghost  instrumental cover  slowed.mp3?url";
-import unethicalInstrumental from "./UNETHICAL INSTRUMENTAL - FAOUZIA.mp3?url";
+const CDN = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media";
 
-export const sorryScene1To4MusicUrl: string | null = justinBieberGhost;
-export const sorryScene5To8MusicUrl: string | null = unethicalInstrumental;
-export const sorryScene9To10MusicUrl: string | null = enhypenFatalTrouble;
+export const sorryScene1To4MusicUrl: string | null = `${CDN}/justin-bieber-ghost.mp3`;
+export const sorryScene5To8MusicUrl: string | null = `${CDN}/UNETHICAL INSTRUMENTAL - FAOUZIA.mp3`;
+export const sorryScene9To10MusicUrl: string | null = `${CDN}/enhypen-fatal-trouble.mp3`;

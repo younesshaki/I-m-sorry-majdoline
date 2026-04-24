@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import sharedBackgroundImage from "../../assets/backgrounds/sorry-entry.png";
+const sharedBackgroundImage = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorry-entry.png";
 
 type CinematicShellProps = PropsWithChildren<{
   className?: string;

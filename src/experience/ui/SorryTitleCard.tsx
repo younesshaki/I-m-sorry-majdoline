@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import "./SorryTitleCard.css";
-import sorryTitleBackground from "../scenes/sorry/background video/sorryentry2.png";
+
+const sorryTitleBackground = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorryentry2.png";
 
 type SorryTitleCardProps = {
   onPlay: () => void;
