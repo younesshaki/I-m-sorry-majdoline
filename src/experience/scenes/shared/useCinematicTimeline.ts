@@ -44,8 +44,10 @@ type CinematicTimelineOptions = {
    * will only be armed after the GSAP timeline completes AND `isOpen()`
    * returns true. Used by the Sorry chapter to wait for all lyric lines to
    * finish displaying before allowing scroll.
+   * `reset()` is called synchronously at the start of every scene so the
+   * previous scene's open state cannot bleed into the early-gate poll.
    */
-  advanceGate?: { isOpen: () => boolean };
+  advanceGate?: { isOpen: () => boolean; reset?: () => void };
 };
 
 type SceneData = {
@@ -275,7 +277,11 @@ export function useCinematicTimeline({
     // Play a specific scene
     const playScene = (index: number) => {
       if (index < 0 || index >= scenes.length) return;
-      
+
+      // Reset the advance gate synchronously before any RAF starts so the
+      // previous scene's open state cannot bleed into the early-gate poll.
+      advanceGateRef.current?.reset?.();
+
       const scene = scenes[index];
       currentSceneIndexRef.current = index;
       isPlayingRef.current = true;

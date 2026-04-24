@@ -10,6 +10,7 @@ type SorryTimelineOptions = {
 
 const sorryAdvanceGate = {
   isOpen: () => sorryScrollGate.paragraphComplete,
+  reset: () => sorryScrollGate.reset(),
 };
 
 export function useSorryTimeline({
