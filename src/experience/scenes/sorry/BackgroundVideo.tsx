@@ -3,79 +3,187 @@ import { sorrySceneAssets } from "./data/sceneAssets";
 
 type BackgroundVideoProps = {
   isVisible?: boolean;
+  activeSceneIndex?: number;
 };
 
-// Increase this toward 1 to make the background video darker.
-const BACKGROUND_VIDEO_DARKNESS = 0.9;
-// Increase this if the loop still flashes near the end.
-const LOOP_END_TRIM_SECONDS = 0.3;
-const LOOP_RESTART_TIME_SECONDS = 1;
-// Increase these to make the blur blend more gradually.
-const LOOP_BLUR_OUT_SECONDS = 3.2;
-const LOOP_BLUR_IN_SECONDS = 3.2;
-// Increase this for a stronger blur right before the loop jump.
-const LOOP_MAX_BLUR_PX = 60;
+const VIDEOS = sorrySceneAssets.video.blenderScenes;
 
-export function BackgroundVideo({ isVisible = true }: BackgroundVideoProps) {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
+// Which video index to show per scene (0-indexed, 10 scenes total)
+// video 0 → scenes 0-1  video 1 → scenes 2-3  video 2 → scenes 4-6
+// video 3 → scenes 7-8  video 4 → scenes 9-10 (blenderscenefinal)
+const SCENE_TO_VIDEO: number[] = [0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4];
 
+// Pause points: pause the video when it reaches `atSeconds` during `sceneIndex`.
+// Playback resumes when activeSceneIndex advances past sceneIndex.
+type PausePoint = { videoIndex: number; atSeconds: number; sceneIndex: number };
+const PAUSE_POINTS: PausePoint[] = [
+  { videoIndex: 2, atSeconds: 23.5, sceneIndex: 4 }, // blenderscene3 – end of scene 5
+  { videoIndex: 2, atSeconds: 35,   sceneIndex: 5 }, // blenderscene3 – end of scene 6
+  { videoIndex: 3, atSeconds: 11,   sceneIndex: 7 }, // blenderscene5  – end of scene 8
+  { videoIndex: 4, atSeconds: 17,   sceneIndex: 9 }, // blenderscenefinal – end of scene 10
+];
+
+// Duration of the blur overlay that hides the swap (ms).
+// We do NOT fade to white — the back-buffer approach keeps the old frame
+// visible behind the blur until the new video has a frame ready.
+const BLUR_DURATION_MS = 380;
+const BLUR_PEAK_PX = 14;
+
+export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: BackgroundVideoProps) {
+  // Two video elements; we alternate which one is "active" (opacity 1)
+  const videoARef = useRef<HTMLVideoElement | null>(null);
+  const videoBRef = useRef<HTMLVideoElement | null>(null);
+
+  // 0 = A is active, 1 = B is active
+  const activeSlotRef = useRef<0 | 1>(0);
+  const currentVideoIndexRef = useRef(-1);
+  const activeSceneIndexRef = useRef(activeSceneIndex);
+  const pausedAtPointRef = useRef<PausePoint | null>(null);
+  const transitionInProgressRef = useRef(false);
+
+  // Keep a live ref to activeSceneIndex for timeupdate callback
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) {
+    activeSceneIndexRef.current = activeSceneIndex;
+  }, [activeSceneIndex]);
+
+  // ── Initial load ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    const front = videoARef.current;
+    const back  = videoBRef.current;
+    if (!front || !back) return;
+
+    // A starts visible, B stays invisible
+    front.style.opacity = "1";
+    back.style.opacity  = "0";
+
+    front.src = VIDEOS[0];
+    currentVideoIndexRef.current = 0;
+    void front.play().catch(() => {});
+  }, []);
+
+  // ── timeupdate — enforce pause points ────────────────────────────────────
+  useEffect(() => {
+    const handleTimeUpdate = (video: HTMLVideoElement) => () => {
+      if (pausedAtPointRef.current) return;
+      const videoIndex = currentVideoIndexRef.current;
+      const sceneIdx   = activeSceneIndexRef.current;
+      const t          = video.currentTime;
+
+      const hit = PAUSE_POINTS.find(
+        (p) =>
+          p.videoIndex === videoIndex &&
+          p.sceneIndex === sceneIdx &&
+          t >= p.atSeconds
+      );
+
+      if (hit) {
+        video.pause();
+        // Snap slightly before the mark so resume is seamless
+        video.currentTime = Math.max(0, hit.atSeconds - 0.04);
+        pausedAtPointRef.current = hit;
+      }
+    };
+
+    const a = videoARef.current;
+    const b = videoBRef.current;
+    if (!a || !b) return;
+
+    const handlerA = handleTimeUpdate(a);
+    const handlerB = handleTimeUpdate(b);
+    a.addEventListener("timeupdate", handlerA);
+    b.addEventListener("timeupdate", handlerB);
+    return () => {
+      a.removeEventListener("timeupdate", handlerA);
+      b.removeEventListener("timeupdate", handlerB);
+    };
+  }, []);
+
+  // ── Scene change ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (activeSceneIndex < 0) return;
+    const nextVideoIndex = SCENE_TO_VIDEO[Math.min(activeSceneIndex, 10)] ?? 0;
+    const slots = [videoARef.current, videoBRef.current] as const;
+    const frontSlot = activeSlotRef.current;
+    const backSlot  = (frontSlot === 0 ? 1 : 0) as 0 | 1;
+    const front = slots[frontSlot];
+    const back  = slots[backSlot];
+    if (!front || !back) return;
+
+    // ── Same video: just resume if we were paused at this scene's gate ──────
+    if (nextVideoIndex === currentVideoIndexRef.current) {
+      const paused = pausedAtPointRef.current;
+      if (paused && activeSceneIndex > paused.sceneIndex) {
+        pausedAtPointRef.current = null;
+        void front.play().catch(() => {});
+      }
       return;
     }
 
-    let rafId = 0;
-    let isBlurringIn = false;
-    let blurInStartedAt = 0;
+    // ── Different video: double-buffer crossfade ───────────────────────────
+    if (transitionInProgressRef.current) return;
+    transitionInProgressRef.current = true;
+    pausedAtPointRef.current = null;
 
-    const tick = () => {
-      if (isBlurringIn) {
-        const elapsed = (performance.now() - blurInStartedAt) / 1000;
-        const blurInProgress = Math.min(elapsed / LOOP_BLUR_IN_SECONDS, 1);
-        const blurPx = LOOP_MAX_BLUR_PX * (1 - blurInProgress);
-        video.style.filter = `blur(${blurPx}px)`;
+    // Step 1 — blur the front video
+    front.style.transition = `filter ${BLUR_DURATION_MS}ms ease-out`;
+    front.style.filter     = `blur(${BLUR_PEAK_PX}px)`;
 
-        if (blurInProgress >= 1) {
-          isBlurringIn = false;
-          video.style.filter = "blur(0px)";
-        }
-      } else if (video.duration && Number.isFinite(video.duration)) {
-        const loopJumpTime = video.duration - LOOP_END_TRIM_SECONDS;
-        const blurOutStartTime = loopJumpTime - LOOP_BLUR_OUT_SECONDS;
+    // Load the new video into the back buffer while the blur peaks
+    back.src = VIDEOS[nextVideoIndex];
+    back.style.opacity    = "0";
+    back.style.filter     = "blur(0px)";
+    back.style.transition = "none";
 
-        if (video.currentTime >= blurOutStartTime) {
-          const blurOutProgress = Math.min(
-            (video.currentTime - blurOutStartTime) / LOOP_BLUR_OUT_SECONDS,
-            1
-          );
-          const blurPx = LOOP_MAX_BLUR_PX * blurOutProgress;
-          video.style.filter = `blur(${blurPx}px)`;
-        } else {
-          video.style.filter = "blur(0px)";
-        }
+    const onCanPlay = () => {
+      back.removeEventListener("canplay", onCanPlay);
+      void back.play().catch(() => {});
 
-        if (video.currentTime >= loopJumpTime) {
-          video.style.filter = `blur(${LOOP_MAX_BLUR_PX}px)`;
-          video.currentTime = LOOP_RESTART_TIME_SECONDS;
-          if (!video.paused) {
-            void video.play().catch(() => {});
-          }
-          isBlurringIn = true;
-          blurInStartedAt = performance.now();
-        }
-      }
+      // Step 2 — once back has a frame, crossfade: unblur front, bring back to opacity 1
+      // We use a slight delay so the blur peak is visible for a beat
+      const crossfadeTimer = window.setTimeout(() => {
+        // Swap which slot is considered "active"
+        activeSlotRef.current = backSlot;
+        currentVideoIndexRef.current = nextVideoIndex;
+        transitionInProgressRef.current = false;
 
-      rafId = window.requestAnimationFrame(tick);
+        // Bring back into view without a brightness flash
+        back.style.transition  = `opacity ${BLUR_DURATION_MS}ms ease-in`;
+        back.style.opacity     = "1";
+
+        // Fade out old front
+        front.style.transition = `filter ${BLUR_DURATION_MS}ms ease-in, opacity ${BLUR_DURATION_MS}ms ease-in`;
+        front.style.filter     = "blur(0px)";
+        front.style.opacity    = "0";
+
+        // Pause old front once hidden
+        window.setTimeout(() => {
+          front.pause();
+          front.removeAttribute("src");
+        }, BLUR_DURATION_MS + 50);
+      }, BLUR_DURATION_MS);
+
+      return () => window.clearTimeout(crossfadeTimer);
     };
 
-    rafId = window.requestAnimationFrame(tick);
+    back.addEventListener("canplay", onCanPlay);
+
+    // Fallback: if canplay never fires within reasonable time, still swap
+    const fallback = window.setTimeout(() => {
+      back.removeEventListener("canplay", onCanPlay);
+      activeSlotRef.current = backSlot;
+      currentVideoIndexRef.current = nextVideoIndex;
+      transitionInProgressRef.current = false;
+      back.style.opacity    = "1";
+      front.style.opacity   = "0";
+      front.style.filter    = "blur(0px)";
+      void back.play().catch(() => {});
+    }, BLUR_DURATION_MS * 4);
 
     return () => {
-      window.cancelAnimationFrame(rafId);
-      video.style.filter = "blur(0px)";
+      window.clearTimeout(fallback);
+      back.removeEventListener("canplay", onCanPlay);
     };
-  }, []);
+  }, [activeSceneIndex]);
 
   return (
     <div
@@ -90,9 +198,9 @@ export function BackgroundVideo({ isVisible = true }: BackgroundVideoProps) {
         transition: "opacity 500ms ease",
       }}
     >
+      {/* Two video layers — only one visible at a time */}
       <video
-        ref={videoRef}
-        src={sorrySceneAssets.video.background}
+        ref={videoARef}
         autoPlay
         muted
         playsInline
@@ -103,14 +211,23 @@ export function BackgroundVideo({ isVisible = true }: BackgroundVideoProps) {
           width: "100%",
           height: "100%",
           objectFit: "cover",
+          opacity: 1,
           filter: "blur(0px)",
         }}
       />
-      <div
+      <video
+        ref={videoBRef}
+        muted
+        playsInline
+        preload="auto"
         style={{
           position: "absolute",
           inset: 0,
-          background: `rgba(0, 0, 0, ${BACKGROUND_VIDEO_DARKNESS})`,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          opacity: 0,
+          filter: "blur(0px)",
         }}
       />
     </div>

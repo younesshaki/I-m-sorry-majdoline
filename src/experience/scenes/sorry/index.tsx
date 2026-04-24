@@ -1,38 +1,120 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { SorryScene } from "./SorryScene";
 import { SorryNarrative } from "./SorryNarrative";
 import { useSorryTimeline } from "./SorryTimeline";
-import { useAmbientMusic } from "./useAmbientMusic";
-import { sorryMusicUrl } from "./audio";
+import { useSorrySceneMusic } from "./useSorrySceneMusic";
 import { useActiveNarrativeScene } from "../shared/useActiveNarrativeScene";
 import { sorryScenes } from "./data";
 import { ForgivenessScene } from "./ForgivenessScene";
 import { Scene12 } from "./Scene12";
 import { NoEndingScene } from "./NoEndingScene";
 import { useStory } from "../../story/StoryProvider";
+import type { StoryAnalytics } from "../../story/types";
 
 type SorryPhase = "cinematic" | "forgiveness" | "scene12" | "ending";
 
 type SorryChapterProps = {
   isActive?: boolean;
   onGoHome?: () => void;
+  onSceneChange?: (index: number) => void;
 };
 
-export default function SorryChapter({ isActive = true, onGoHome }: SorryChapterProps) {
+export default function SorryChapter({ isActive = true, onGoHome, onSceneChange }: SorryChapterProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const activeScene = useActiveNarrativeScene(overlayRef, sorryScenes, isActive);
   const [phase, setPhase] = useState<SorryPhase>("cinematic");
-  const { unlockFlag } = useStory();
+  const finalChoiceSceneId = "sorry-scene-11";
+  const endingSceneId = "sorry-ending";
+  const scene12Id = "sorry-scene-12";
+  const trackedSceneIdRef = useRef<string | null>(null);
+  const trackedSceneStartedAtRef = useRef<number | null>(null);
 
-  useAmbientMusic({
-    musicUrl: sorryMusicUrl,
+  const activeSceneIndex = sorryScenes.findIndex((s) => s.id === activeScene.id);
+  const safeSceneIndex = activeSceneIndex >= 0 ? activeSceneIndex : 0;
+  const cinematicSceneId =
+    activeScene.id && safeSceneIndex >= 0
+      ? `sorry-scene-${safeSceneIndex + 1}`
+      : null;
+  const trackedStorySceneId =
+    phase === "cinematic"
+      ? cinematicSceneId
+      : phase === "forgiveness"
+        ? finalChoiceSceneId
+        : phase === "scene12"
+          ? scene12Id
+          : endingSceneId;
+
+  useEffect(() => {
+    // Pass the raw activeSceneIndex (including -1 when no scene is active yet)
+    // so the parent stays dormant until the GSAP timeline confirms scene 0.
+    onSceneChange?.(activeSceneIndex);
+  }, [activeSceneIndex, onSceneChange]);
+
+  const { recordChoice, setAnalytics, setCurrentLocation, state: storyState, unlockFlag } = useStory();
+
+  useSorrySceneMusic(safeSceneIndex, isActive && phase === "cinematic");
+
+  const persistTrackedSceneState = useCallback(
+    async (sceneId: string, analytics: StoryAnalytics) => {
+      await setCurrentLocation("sorry", "sorry-chapter-1", sceneId);
+      await setAnalytics(analytics);
+    },
+    [setAnalytics, setCurrentLocation]
+  );
+
+  useEffect(() => {
+    if (!isActive || !trackedStorySceneId) {
+      return;
+    }
+
+    if (trackedSceneIdRef.current === trackedStorySceneId) {
+      return;
+    }
+
+    const nowMs = Date.now();
+    const nextSceneDurationsMs = {
+      ...storyState.analytics.sceneDurationsMs,
+    };
+    const previousSceneId = trackedSceneIdRef.current;
+    const previousStartedAt = trackedSceneStartedAtRef.current;
+
+    if (
+      previousSceneId &&
+      previousStartedAt !== null &&
+      previousSceneId !== trackedStorySceneId
+    ) {
+      nextSceneDurationsMs[previousSceneId] =
+        (nextSceneDurationsMs[previousSceneId] ?? 0) + (nowMs - previousStartedAt);
+    }
+
+    const currentSceneEnteredAt = new Date(nowMs).toISOString();
+    const nextAnalytics: StoryAnalytics = {
+      ...storyState.analytics,
+      sceneDurationsMs: nextSceneDurationsMs,
+      currentSceneId: trackedStorySceneId,
+      currentSceneEnteredAt,
+      finalChoicePromptStartedAt:
+        trackedStorySceneId === finalChoiceSceneId
+          ? storyState.analytics.finalChoicePromptStartedAt ?? currentSceneEnteredAt
+          : storyState.analytics.finalChoicePromptStartedAt,
+      finalChoiceResponseMs:
+        trackedStorySceneId === finalChoiceSceneId &&
+        previousSceneId !== finalChoiceSceneId
+          ? null
+          : storyState.analytics.finalChoiceResponseMs,
+    };
+
+    trackedSceneIdRef.current = trackedStorySceneId;
+    trackedSceneStartedAtRef.current = nowMs;
+
+    void persistTrackedSceneState(trackedStorySceneId, nextAnalytics);
+  }, [
+    finalChoiceSceneId,
     isActive,
-    baseVolume: 0.2,
-    duckedVolume: 0.06,
-    fadeInDuration: 3,
-    fadeOutDuration: 2,
-    startDelay: 0.5,
-  });
+    persistTrackedSceneState,
+    storyState.analytics,
+    trackedStorySceneId,
+  ]);
 
   const handleAllScenesComplete = useCallback(() => {
     setPhase("forgiveness");
@@ -45,13 +127,41 @@ export default function SorryChapter({ isActive = true, onGoHome }: SorryChapter
   });
 
   const handleYes = useCallback(async () => {
-    await unlockFlag("gift_unlocked", "sorry-scene-11");
-    setPhase("scene12");
-  }, [unlockFlag]);
+    const nowMs = Date.now();
+    const promptStartedAt = storyState.analytics.finalChoicePromptStartedAt;
+    const responseTimeMs = promptStartedAt
+      ? Math.max(0, nowMs - new Date(promptStartedAt).getTime())
+      : null;
 
-  const handleNo = useCallback(() => {
+    await setAnalytics({
+      ...storyState.analytics,
+      finalChoiceResponseMs: responseTimeMs,
+    });
+    await recordChoice(finalChoiceSceneId, "yes", {
+      responseTimeMs,
+      selectedAt: new Date(nowMs).toISOString(),
+    });
+    await unlockFlag("gift_unlocked", finalChoiceSceneId);
+    setPhase("scene12");
+  }, [finalChoiceSceneId, recordChoice, setAnalytics, storyState.analytics, unlockFlag]);
+
+  const handleNo = useCallback(async () => {
+    const nowMs = Date.now();
+    const promptStartedAt = storyState.analytics.finalChoicePromptStartedAt;
+    const responseTimeMs = promptStartedAt
+      ? Math.max(0, nowMs - new Date(promptStartedAt).getTime())
+      : null;
+
+    await setAnalytics({
+      ...storyState.analytics,
+      finalChoiceResponseMs: responseTimeMs,
+    });
+    await recordChoice(finalChoiceSceneId, "no", {
+      responseTimeMs,
+      selectedAt: new Date(nowMs).toISOString(),
+    });
     setPhase("ending");
-  }, []);
+  }, [finalChoiceSceneId, recordChoice, setAnalytics, storyState.analytics]);
 
   const handleScene12Complete = useCallback(() => {
     onGoHome?.();

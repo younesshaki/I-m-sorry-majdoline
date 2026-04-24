@@ -1,10 +1,15 @@
 import type { RefObject } from "react";
 import { useCinematicTimeline } from "../shared/useCinematicTimeline";
+import { sorryScrollGate } from "./sorryScrollGate";
 
 type SorryTimelineOptions = {
   overlayRef: RefObject<HTMLDivElement>;
   isActive: boolean;
   onAllScenesComplete?: () => void;
+};
+
+const sorryAdvanceGate = {
+  isOpen: () => sorryScrollGate.paragraphComplete,
 };
 
 export function useSorryTimeline({
@@ -18,5 +23,6 @@ export function useSorryTimeline({
     sceneDuration: 25,
     introDelay: 3,
     onAllScenesComplete,
+    advanceGate: sorryAdvanceGate,
   });
 }

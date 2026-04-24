@@ -9,6 +9,7 @@ import { scene7 } from "./scenes/scene-7/content";
 import { scene8 } from "./scenes/scene-8/content";
 import { scene9 } from "./scenes/scene-9/content";
 import { scene10 } from "./scenes/scene-10/content";
+import { scene11 } from "./scenes/scene-11/content";
 
 export const sorryScenes: NarrativeScene[] = [
   scene1,
@@ -21,4 +22,5 @@ export const sorryScenes: NarrativeScene[] = [
   scene8,
   scene9,
   scene10,
+  scene11,
 ];

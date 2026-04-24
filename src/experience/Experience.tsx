@@ -17,6 +17,7 @@ import { useLoadingController } from "./hooks/useLoadingController";
 import { SoundProvider } from "./soundContext";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { BackgroundVideo as SorryBackgroundVideo } from "./scenes/sorry/BackgroundVideo";
+import { SorryLyricsDisplay } from "./scenes/sorry/SorryLyricsDisplay";
 import { ScrollIndicator } from "./scenes/shared/ScrollIndicator";
 import { useStory } from "./story/StoryProvider";
 import {
@@ -137,6 +138,7 @@ export default function Experience({
   const [canHideLoader, setCanHideLoader] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundBlocked, setSoundBlocked] = useState(false);
+  const [sorrySceneIndex, setSorrySceneIndex] = useState(-1);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const transitionRef = useRef<gsap.core.Timeline | null>(null);
   const restoredFromStoryRef = useRef(false);
@@ -367,7 +369,8 @@ export default function Experience({
   return (
     <SoundProvider value={{ soundEnabled, soundBlocked }}>
       <div style={{ position: "relative", width: "100%", height: "100%" }}>
-        {isSorryChapter ? <SorryBackgroundVideo isVisible /> : null}
+        {isSorryChapter ? <SorryBackgroundVideo isVisible activeSceneIndex={sorrySceneIndex} /> : null}
+        {isSorryChapter ? <SorryLyricsDisplay activeSceneIndex={sorrySceneIndex} isActive={isSorryChapter} /> : null}
         <ModelPreloader />
         <CanvasErrorBoundary key={`part-${visiblePartIndex}-chapter-${visibleChapterIndex}`}>
           <Canvas
@@ -415,6 +418,7 @@ export default function Experience({
                 currentPart={visiblePartIndex + 1}
                 scenesHidden={scenesHidden}
                 onGoHome={onGoHome}
+                onSorrySceneChange={setSorrySceneIndex}
               />
             </Suspense>
             <pointLight position={[0, 5, 0]} intensity={1} color="white" />

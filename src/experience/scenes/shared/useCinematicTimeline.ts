@@ -39,6 +39,13 @@ type CinematicTimelineOptions = {
   onProgressUpdate?: (sceneIndex: number, sceneId: string | null, isWaiting: boolean) => void;
   /** Fires once when the last scene completes and user tries to advance further */
   onAllScenesComplete?: () => void;
+  /**
+   * Optional external gate. When provided, the scroll-to-continue indicator
+   * will only be armed after the GSAP timeline completes AND `isOpen()`
+   * returns true. Used by the Sorry chapter to wait for all lyric lines to
+   * finish displaying before allowing scroll.
+   */
+  advanceGate?: { isOpen: () => boolean };
 };
 
 type SceneData = {
@@ -58,7 +65,12 @@ export function useCinematicTimeline({
   introDelay = 2.5,
   onProgressUpdate,
   onAllScenesComplete,
+  advanceGate,
 }: CinematicTimelineOptions) {
+  const advanceGateRef = useRef(advanceGate);
+  useEffect(() => {
+    advanceGateRef.current = advanceGate;
+  }, [advanceGate]);
   const currentSceneIndexRef = useRef(-1);
   const isPlayingRef = useRef(false);
   const isWaitingForScrollRef = useRef(false);
@@ -70,6 +82,8 @@ export function useCinematicTimeline({
   const initializingRef = useRef(false);
   // Cancels the per-scene VO-sync RAF loop when transitioning away
   const voSyncCancelRef = useRef<(() => void) | null>(null);
+  // Cancels the per-scene advance-gate RAF loop when transitioning away
+  const gateWaitCancelRef = useRef<(() => void) | null>(null);
   
   const soundStateRef = useRef({ enabled: true, blocked: false });
   const { soundEnabled, soundBlocked } = useSoundSettings();
@@ -281,9 +295,11 @@ export function useCinematicTimeline({
         }
       });
       
-      // Cancel previous VO-sync loop before starting new scene
+      // Cancel previous VO-sync / gate-wait loops before starting new scene
       voSyncCancelRef.current?.();
       voSyncCancelRef.current = null;
+      gateWaitCancelRef.current?.();
+      gateWaitCancelRef.current = null;
 
       // Kill any existing tweens on this scene's elements to prevent interference
       if (scene.inner) gsap.killTweensOf(scene.inner);
@@ -362,6 +378,37 @@ export function useCinematicTimeline({
       // Play the timeline
       tl.play();
 
+      // Early-exit gate poll: if an advanceGate is provided, start polling
+      // immediately. When the gate opens before the timeline completes, kill
+      // the timeline and arm scroll right away (no 25s wait for short scenes).
+      const earlyGate = advanceGateRef.current;
+      if (earlyGate) {
+        let earlyRafId = 0;
+        const earlyPoll = () => {
+          // Stop polling once the timeline has naturally completed
+          // (onComplete will take over from there)
+          if (!isPlayingRef.current) return;
+          if (earlyGate.isOpen()) {
+            tl.kill();
+            isPlayingRef.current = false;
+            debugState.isAutoPlaying = false;
+            scrollAccumulatorRef.current = 0;
+            if (scene.voiceOverUrl) fadeOutAudio(scene.id);
+            gateWaitCancelRef.current?.();
+            gateWaitCancelRef.current = null;
+            // Arm scroll directly
+            isWaitingForScrollRef.current = true;
+            debugState.waitingForScroll = true;
+            debugState.canScrollBack = index > 0;
+            onProgressUpdate?.(index, scene.id, true);
+            return;
+          }
+          earlyRafId = requestAnimationFrame(earlyPoll);
+        };
+        earlyRafId = requestAnimationFrame(earlyPoll);
+        gateWaitCancelRef.current = () => cancelAnimationFrame(earlyRafId);
+      }
+
       // VO-synced line reveal: RAF loop that reads audio.currentTime and
       // shows/hides lines based on their data-start-time / data-end-time.
       // Only runs for lines that have data-start-time set.
@@ -397,20 +444,43 @@ export function useCinematicTimeline({
 
       // When scene ends, wait for scroll
       tl.eventCallback("onComplete", () => {
-        devLog(`[Cinematic] Scene ${scene.id} complete. Waiting for scroll...`);
+        devLog(`[Cinematic] Scene ${scene.id} complete. Waiting for gate/scroll...`);
         isPlayingRef.current = false;
-        isWaitingForScrollRef.current = true;
         debugState.isAutoPlaying = false;
-        debugState.waitingForScroll = true;
-        debugState.canScrollBack = index > 0; // Update scroll back availability
         scrollAccumulatorRef.current = 0;
-        
+
         // Fade out audio
         if (scene.voiceOverUrl) {
           fadeOutAudio(scene.id);
         }
-        
-        onProgressUpdate?.(index, scene.id, true);
+
+        // Cancel any in-flight gate poll from a previous scene
+        gateWaitCancelRef.current?.();
+        gateWaitCancelRef.current = null;
+
+        const armScroll = () => {
+          isWaitingForScrollRef.current = true;
+          debugState.waitingForScroll = true;
+          debugState.canScrollBack = index > 0;
+          onProgressUpdate?.(index, scene.id, true);
+        };
+
+        const gate = advanceGateRef.current;
+        if (gate) {
+          // Poll until the external gate opens (e.g. all lyric lines finished)
+          let rafId = 0;
+          const poll = () => {
+            if (gate.isOpen()) {
+              armScroll();
+              return;
+            }
+            rafId = requestAnimationFrame(poll);
+          };
+          rafId = requestAnimationFrame(poll);
+          gateWaitCancelRef.current = () => cancelAnimationFrame(rafId);
+        } else {
+          armScroll();
+        }
       });
       
       onProgressUpdate?.(index, scene.id, false);
@@ -795,6 +865,8 @@ export function useCinematicTimeline({
       initializingRef.current = false;
       voSyncCancelRef.current?.();
       voSyncCancelRef.current = null;
+      gateWaitCancelRef.current?.();
+      gateWaitCancelRef.current = null;
 
       cleanupFnsRef.current.forEach(fn => fn());
       cleanupFnsRef.current = [];
