@@ -105,11 +105,15 @@ export function useCinematicTimeline({
         sceneTimelineRef.current = null;
       }
       
-      // Stop all audio
+      // Fade out all audio gracefully then stop
       Object.values(audioMapRef.current).forEach((audio) => {
-        audio.pause();
-        audio.currentTime = 0;
-        audio.volume = 0;
+        if (audio.paused) return;
+        gsap.to(audio, {
+          volume: 0,
+          duration: 1.8,
+          ease: "power2.in",
+          onComplete: () => { audio.pause(); audio.currentTime = 0; },
+        });
       });
       
       // Reset refs
@@ -180,7 +184,7 @@ export function useCinematicTimeline({
       audio.currentTime = 0;
       audio.volume = 0;
       
-      gsap.to(audio, { volume: 1, duration: 0.8, ease: "power1.out" });
+      gsap.to(audio, { volume: 1, duration: 1.8, ease: "power2.out" });
       audio.play().catch(() => {});
     };
 
@@ -188,10 +192,10 @@ export function useCinematicTimeline({
     const fadeOutAudio = (sceneId: string) => {
       const audio = audioMapRef.current[sceneId];
       if (audio) {
-        gsap.to(audio, { 
-          volume: 0, 
-          duration: 0.8, 
-          ease: "power1.in",
+        gsap.to(audio, {
+          volume: 0,
+          duration: 1.8,
+          ease: "power2.in",
           onComplete: () => {
             audio.pause();
             audio.currentTime = 0;

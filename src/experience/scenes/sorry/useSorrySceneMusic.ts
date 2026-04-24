@@ -22,11 +22,11 @@ const TRACK_URLS = [
   sorryScene9To10MusicUrl,
 ];
 
-const BASE_VOLUME   = 0.22;
-const FADE_IN_S     = 3.0;
-const FADE_OUT_S    = 2.2;
-const CROSSFADE_S   = 2.0;
-const START_DELAY_S = 0.5;
+const BASE_VOLUME   = 0.28;
+const FADE_IN_S     = 5.0;   // long cinematic entry
+const FADE_OUT_S    = 3.5;   // slow, emotional fade out
+const CROSSFADE_S   = 3.5;   // smooth track crossfade
+const START_DELAY_S = 1.2;   // slight breath before music begins
 
 export function useSorrySceneMusic(activeSceneIndex: number, isActive: boolean) {
   const audiosRef   = useRef<(HTMLAudioElement | null)[]>([null, null, null]);

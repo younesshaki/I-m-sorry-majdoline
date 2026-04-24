@@ -1,97 +1,27 @@
 import { useEffect, useState } from "react";
 import { debugState } from "../../utils/DebugOverlay";
 
-/**
- * A subtle "scroll to continue" indicator that appears at scene boundaries
- * when auto-play pauses and waits for user input.
- * 
- * NOTE: This component must be rendered OUTSIDE of the R3F Canvas to avoid
- * reconciler issues with HTML elements being interpreted as THREE objects.
- */
 export function ScrollIndicator() {
   const [visible, setVisible] = useState(false);
-  const [canScrollBack, setCanScrollBack] = useState(false);
 
   useEffect(() => {
     let rafId: number;
-    
     const checkState = () => {
       setVisible(debugState.waitingForScroll);
-      setCanScrollBack(debugState.canScrollBack);
       rafId = requestAnimationFrame(checkState);
     };
-    
     rafId = requestAnimationFrame(checkState);
-    
-    return () => {
-      cancelAnimationFrame(rafId);
-    };
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
   if (!visible) return null;
 
   return (
     <>
-      {/* Scroll back indicator (top) */}
-      {canScrollBack && (
-        <div
-          style={{
-            position: "fixed",
-            top: "100px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "12px",
-            zIndex: 1000,
-            pointerEvents: "none",
-            animation: "scrollIndicatorFadeInDown 0.6s ease-out",
-          }}
-        >
-          <div
-            style={{
-              width: "24px",
-              height: "40px",
-              border: "2px solid rgba(255, 255, 255, 0.4)",
-              borderRadius: "12px",
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                bottom: "8px",
-                left: "50%",
-                width: "4px",
-                height: "8px",
-                backgroundColor: "rgba(255, 255, 255, 0.6)",
-                borderRadius: "2px",
-                transform: "translateX(-50%)",
-                animation: "scrollIndicatorBounceUp 1.5s ease-in-out infinite",
-              }}
-            />
-          </div>
-          <span
-            style={{
-              color: "rgba(255, 255, 255, 0.6)",
-              fontSize: "12px",
-              fontWeight: 300,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              textShadow: "0 2px 10px rgba(0,0,0,0.5)",
-            }}
-          >
-            Scroll up to go back
-          </span>
-        </div>
-      )}
-      
-      {/* Scroll forward indicator (bottom) - positioned higher to avoid chapter nav */}
       <div
         style={{
           position: "fixed",
-          bottom: "120px", // Increased from 40px to avoid chapter nav overlap
+          bottom: "120px",
           left: "50%",
           transform: "translateX(-50%)",
           display: "flex",
@@ -100,86 +30,76 @@ export function ScrollIndicator() {
           gap: "12px",
           zIndex: 1000,
           pointerEvents: "none",
-          animation: "scrollIndicatorFadeInUp 0.6s ease-out",
+          animation: "scrollIndicatorFadeInUp 0.8s ease-out",
         }}
       >
         <span
           style={{
-            color: "rgba(255, 255, 255, 0.8)",
-            fontSize: "14px",
-            fontWeight: 300,
-            letterSpacing: "0.1em",
+            color: "rgba(255, 255, 255, 0.95)",
+            fontSize: "13px",
+            fontWeight: 400,
+            letterSpacing: "0.18em",
             textTransform: "uppercase",
-            textShadow: "0 2px 10px rgba(0,0,0,0.5)",
+            textShadow: "0 0 20px rgba(255,255,255,0.6), 0 2px 10px rgba(0,0,0,0.8)",
+            animation: "scrollTextPulse 2.4s ease-in-out infinite",
           }}
         >
           Scroll to continue
         </span>
         <div
           style={{
-            width: "24px",
-            height: "40px",
-            border: "2px solid rgba(255, 255, 255, 0.5)",
-            borderRadius: "12px",
+            width: "26px",
+            height: "42px",
+            border: "2px solid rgba(255, 255, 255, 0.9)",
+            borderRadius: "13px",
             position: "relative",
+            boxShadow:
+              "0 0 12px rgba(255,255,255,0.5), 0 0 30px rgba(255,255,255,0.2), inset 0 0 8px rgba(255,255,255,0.1)",
+            animation: "scrollMouseGlow 2.4s ease-in-out infinite",
           }}
         >
           <div
             style={{
               position: "absolute",
-              top: "8px",
+              top: "7px",
               left: "50%",
               width: "4px",
-              height: "8px",
-              backgroundColor: "rgba(255, 255, 255, 0.8)",
+              height: "9px",
+              backgroundColor: "rgba(255, 255, 255, 1)",
               borderRadius: "2px",
               transform: "translateX(-50%)",
-              animation: "scrollIndicatorBounce 1.5s ease-in-out infinite",
+              boxShadow: "0 0 8px rgba(255,255,255,0.9)",
+              animation: "scrollDotBounce 2.4s ease-in-out infinite",
             }}
           />
         </div>
       </div>
-      
+
       <style>{`
         @keyframes scrollIndicatorFadeInUp {
-          from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-          }
+          from { opacity: 0; transform: translateX(-50%) translateY(24px); }
+          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
-        @keyframes scrollIndicatorFadeInDown {
-          from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-          }
+        @keyframes scrollDotBounce {
+          0%   { top: 7px;  opacity: 1; }
+          50%  { top: 22px; opacity: 0.4; }
+          100% { top: 7px;  opacity: 1; }
         }
-        @keyframes scrollIndicatorBounce {
+        @keyframes scrollMouseGlow {
           0%, 100% {
-            top: 8px;
-            opacity: 1;
+            box-shadow: 0 0 10px rgba(255,255,255,0.45),
+                        0 0 28px rgba(255,255,255,0.18),
+                        inset 0 0 6px rgba(255,255,255,0.08);
           }
           50% {
-            top: 20px;
-            opacity: 0.5;
+            box-shadow: 0 0 22px rgba(255,255,255,0.85),
+                        0 0 55px rgba(255,255,255,0.45),
+                        inset 0 0 14px rgba(255,255,255,0.2);
           }
         }
-        @keyframes scrollIndicatorBounceUp {
-          0%, 100% {
-            bottom: 8px;
-            opacity: 1;
-          }
-          50% {
-            bottom: 20px;
-            opacity: 0.5;
-          }
+        @keyframes scrollTextPulse {
+          0%, 100% { opacity: 0.75; text-shadow: 0 0 12px rgba(255,255,255,0.35), 0 2px 10px rgba(0,0,0,0.8); }
+          50%       { opacity: 1;    text-shadow: 0 0 28px rgba(255,255,255,0.8),  0 2px 10px rgba(0,0,0,0.8); }
         }
       `}</style>
     </>
