@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,600;1,700&display=swap');
-
 .sorryOverlay {
   position: absolute;
   inset: 0;
@@ -27,13 +25,31 @@
 }
 
 .sorryTitle {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--scene-font-family);
   font-size: clamp(2.8rem, 7vw, 5.8rem);
   font-weight: 400;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(245, 238, 231, 0.94);
   text-shadow: 0 12px 40px rgba(0, 0, 0, 0.42);
+}
+
+.sorryScene.sorry-scene-1,
+.sorryScene.sorry-scene-2,
+.sorryScene.sorry-scene-3,
+.sorryScene.sorry-scene-4,
+.sorryScene.sorry-scene-5,
+.sorryScene.sorry-scene-6,
+.sorryScene.sorry-scene-7,
+.sorryScene.sorry-scene-8 {
+  --scene-font-family: var(--scene-font-moralana);
+}
+
+.sorryScene.sorry-scene-9,
+.sorryScene.sorry-scene-10,
+.sorryScene.sorry-scene-11,
+.sorryScene.sorry-scene-12 {
+  --scene-font-family: var(--scene-font-higher-jump);
 }
 
 .sorryLine {

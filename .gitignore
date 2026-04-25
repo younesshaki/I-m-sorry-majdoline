@@ -34,7 +34,9 @@ dist-ssr
 *.wasm
 *.zip
 *.otf
+!src/experience/ui/moralana/Moralana DEMO.otf
 *.ttf
+!src/experience/ui/higher-jump/Higher Jump.ttf
 *.png
 !src/experience/ui/ChatGPT Image Apr 25, 2026, 12_07_26 AM.png
 !src/experience/ui/ChatGPT Image Apr 25, 2026, 12_08_42 AM.png

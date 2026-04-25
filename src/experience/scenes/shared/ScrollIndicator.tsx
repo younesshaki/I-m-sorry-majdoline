@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { debugState } from "../../utils/DebugOverlay";
+import { SCENE_FONT_FAMILY } from "./sceneTypography";
 
 export function ScrollIndicator() {
   const [visible, setVisible] = useState(false);
@@ -37,6 +38,7 @@ export function ScrollIndicator() {
           style={{
             color: "rgba(255, 255, 255, 0.95)",
             fontSize: "13px",
+            fontFamily: SCENE_FONT_FAMILY,
             fontWeight: 400,
             letterSpacing: "0.18em",
             textTransform: "uppercase",

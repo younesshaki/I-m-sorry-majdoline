@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import BlurText from "@/components/BlurText";
+import { getSorrySceneFontFamily } from "../shared/sceneTypography";
 import { sorryScenes } from "./data";
 import { sorryScrollGate } from "./sorryScrollGate";
 
@@ -17,18 +19,27 @@ const SCENE_HANDOFF_MS   = 450;   // fade-out before new scene starts
 const MIN_HOLD_MS        = 3400;  // minimum reading time per line
 const MAX_HOLD_MS        = 7400;  // maximum reading time per line
 const MS_PER_WORD        = 440;   // reading-speed multiplier
+const BLUR_TEXT_DELAY_MS = 280;
+const BLUR_TEXT_STEP_MS  = 350;
 
 function holdDuration(text: string): number {
   const words = text.trim().split(/\s+/).length;
   return Math.min(MAX_HOLD_MS, Math.max(MIN_HOLD_MS, words * MS_PER_WORD));
 }
 
-const CINEMATIC_FONT = "'Playfair Display', 'Cormorant Garamond', Georgia, serif";
+function revealFallbackDuration(text: string): number {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(APPEAR_S * 1000, words * BLUR_TEXT_DELAY_MS + BLUR_TEXT_STEP_MS * 2 + 500);
+}
 
 export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
-  const lineRef  = useRef<HTMLParagraphElement>(null);
+  const lineRef  = useRef<HTMLDivElement>(null);
   const timers   = useRef<ReturnType<typeof setTimeout>[]>([]);
   const currentSceneRef = useRef(-1);
+  const lineInCompleteRef = useRef<(() => void) | null>(null);
+  const [currentLine, setCurrentLine] = useState("");
+  const [lineAnimationKey, setLineAnimationKey] = useState(0);
+  const sceneFontFamily = getSorrySceneFontFamily(activeSceneIndex);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach(clearTimeout);
@@ -40,10 +51,6 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
     timers.current.push(id);
   }, []);
 
-  const setLineContent = (text: string) => {
-    if (lineRef.current) lineRef.current.textContent = text;
-  };
-
   // ── Animations ────────────────────────────────────────────────────────────
   // NOTE: do NOT animate `letter-spacing` — it reflows layout and causes the
   // text to visibly shift/jump between lines. We use only transform, opacity,
@@ -54,25 +61,27 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
     if (!el) { onDone(); return; }
 
     gsap.killTweensOf(el);
-    // Set invisible FIRST, then write text — no flash possible
-    gsap.set(el, {
-      opacity: 0,
-      y: 14,
-      scale: 1.04,
-      filter: "brightness(1.7) blur(8px)",
-    });
-    setLineContent(text);
+    lineInCompleteRef.current = onDone;
 
-    gsap.to(el, {
+    // Set the wrapper before writing text so the split letters do not flash.
+    gsap.set(el, {
       opacity: 1,
       y: 0,
       scale: 1,
       filter: "brightness(1) blur(0px)",
-      duration: APPEAR_S,
-      ease: "power3.out",
-      onComplete: onDone,
     });
-  }, []);
+
+    setCurrentLine(text);
+    setLineAnimationKey((key) => key + 1);
+
+    // Fallback keeps the story moving if a browser suppresses the animation callback.
+    after(() => {
+      if (lineInCompleteRef.current === onDone) {
+        lineInCompleteRef.current = null;
+        onDone();
+      }
+    }, revealFallbackDuration(text));
+  }, [after]);
 
   const animateLineOut = useCallback((onDone: () => void) => {
     const el = lineRef.current;
@@ -98,7 +107,14 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
       filter: "brightness(0.4) blur(14px)",
       duration: DISAPPEAR_FADE_S,
       ease: "power2.inOut",
+      onComplete: () => setCurrentLine(""),
     });
+  }, []);
+
+  const handleSplitAnimationComplete = useCallback(() => {
+    const onDone = lineInCompleteRef.current;
+    lineInCompleteRef.current = null;
+    onDone?.();
   }, []);
 
   // ── Line sequencer ───────────────────────────────────────────────────────
@@ -133,7 +149,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
 
       const lineEl = lineRef.current;
       if (lineEl) gsap.set(lineEl, { opacity: 0 });
-      setLineContent("");
+      setCurrentLine("");
 
       // Brief settling pause, then start lines
       after(() => runLines(scene.lines ?? [], 0), 400);
@@ -156,6 +172,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
     currentSceneRef.current = activeSceneIndex;
 
     clearTimers();
+    lineInCompleteRef.current = null;
     sorryScrollGate.reset();
 
     const lineEl = lineRef.current;
@@ -198,7 +215,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
       />
 
       {/* Current line — absolutely centered so width changes never shift position */}
-      <p
+      <div
         ref={lineRef}
         style={{
           position: "absolute",
@@ -208,7 +225,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
           margin: 0,
           padding: "0 2rem",
           width: "min(56rem, calc(100vw - 5rem))",
-          fontFamily: CINEMATIC_FONT,
+          fontFamily: sceneFontFamily,
           fontSize: "clamp(1.35rem, 3vw, 2.15rem)",
           fontWeight: 700,
           fontStyle: "normal",
@@ -221,7 +238,22 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
             "0 2px 6px rgba(0,0,0,0.85), 0 4px 28px rgba(0,0,0,0.75), 0 0 60px rgba(0,0,0,0.5)",
           willChange: "filter, opacity, transform",
         }}
-      />
+      >
+        {currentLine ? (
+          <BlurText
+            key={lineAnimationKey}
+            text={currentLine}
+            className="sorryBlurText"
+            delay={BLUR_TEXT_DELAY_MS}
+            animateBy="words"
+            direction="top"
+            threshold={0.1}
+            rootMargin="0px"
+            stepDuration={BLUR_TEXT_STEP_MS / 1000}
+            onAnimationComplete={handleSplitAnimationComplete}
+          />
+        ) : null}
+      </div>
     </div>
   );
 }

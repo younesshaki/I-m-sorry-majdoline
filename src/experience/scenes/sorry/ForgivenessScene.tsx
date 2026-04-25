@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { SCENE_FONT_FAMILY } from "../shared/sceneTypography";
 import "./ForgivenessScene.css";
 
 type ForgivenessSceneProps = {
@@ -35,7 +36,7 @@ function ForgivenessOverlay({ onYes, onNo }: ForgivenessSceneProps) {
       >
         <p
           style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontFamily: SCENE_FONT_FAMILY,
             fontSize: "clamp(1rem, 2.2vw, 1.25rem)",
             lineHeight: 1.85,
             letterSpacing: "0.03em",

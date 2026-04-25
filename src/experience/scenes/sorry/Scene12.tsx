@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { SCENE_FONT_FAMILY } from "../shared/sceneTypography";
 import { scene12 } from "./scenes/scene-12/content";
 import "./Scene12.css";
 
@@ -46,7 +47,7 @@ function Scene12Overlay({
         <h2
           className="s12-title"
           style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontFamily: SCENE_FONT_FAMILY,
             fontSize: "clamp(2.2rem, 6vw, 4.8rem)",
             fontWeight: 400,
             letterSpacing: "0.06em",
@@ -67,7 +68,7 @@ function Scene12Overlay({
             key={i}
             className="s12-line"
             style={{
-              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontFamily: SCENE_FONT_FAMILY,
               fontSize: "clamp(1rem, 2vw, 1.2rem)",
               lineHeight: 1.9,
               letterSpacing: "0.02em",

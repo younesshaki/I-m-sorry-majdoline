@@ -1,3 +1,5 @@
+@import "../shared/sceneFonts.css";
+
 .forgivenessChoiceButton {
   min-width: 8.8rem;
   border-color: rgba(255, 255, 255, 0.14);
@@ -29,7 +31,7 @@
   border-radius: inherit;
   background: rgba(5, 5, 7, 0.92);
   color: rgba(245, 238, 231, 0.9);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--scene-font-family);
   font-size: clamp(0.85rem, 1.8vw, 1rem);
   line-height: 1;
   letter-spacing: 0.18em;

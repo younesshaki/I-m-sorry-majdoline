@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { SCENE_FONT_FAMILY } from "../shared/sceneTypography";
+import "../shared/sceneFonts.css";
 
 export const NO_ENDING_LINES = [
   "I understand.",
@@ -46,7 +48,7 @@ function NoEndingOverlay({ isLeaving }: NoEndingOverlayProps) {
           <p
             key={line}
             style={{
-              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontFamily: SCENE_FONT_FAMILY,
               fontSize: "clamp(1rem, 2vw, 1.2rem)",
               lineHeight: 1.9,
               letterSpacing: "0.03em",
