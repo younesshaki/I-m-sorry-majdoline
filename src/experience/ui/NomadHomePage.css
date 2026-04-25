@@ -48,7 +48,7 @@
   max-width: 760px;
   margin: 0;
   color: rgba(255, 255, 255, 0.95);
-  font-family: "DK Lemon Yellow Sun", Georgia, serif;
+  font-family: var(--experience-font-family);
   font-size: clamp(2rem, 5vw, 4.1rem);
   font-weight: 400;
   letter-spacing: 0.06em;

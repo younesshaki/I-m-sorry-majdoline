@@ -46,7 +46,7 @@ export default class CanvasErrorBoundary extends Component<
               justifyContent: "center",
               background: "#0b0b0b",
               color: "#f2f2f2",
-              fontFamily: "Segoe UI, Helvetica, Arial, sans-serif",
+              fontFamily: "var(--experience-font-family)",
               fontSize: "14px",
               textAlign: "center",
               padding: "24px",

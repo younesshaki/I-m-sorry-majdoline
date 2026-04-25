@@ -18,4 +18,5 @@
   --scene-font-moralana: "Moralana", Georgia, "Times New Roman", serif;
   --scene-font-higher-jump: "Higher Jump", Georgia, "Times New Roman", serif;
   --scene-font-family: "Higher Jump", Georgia, "Times New Roman", serif;
+  --experience-font-family: var(--scene-font-moralana);
 }

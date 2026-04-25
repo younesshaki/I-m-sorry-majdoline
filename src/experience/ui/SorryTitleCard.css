@@ -48,7 +48,7 @@
 
 .sorryTitleCard__title {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--experience-font-family);
   font-size: clamp(3rem, 9vw, 6.8rem);
   font-weight: 400;
   letter-spacing: 0.08em;

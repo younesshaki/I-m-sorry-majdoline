@@ -19,6 +19,7 @@ import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { BackgroundVideo as SorryBackgroundVideo } from "./scenes/sorry/BackgroundVideo";
 import { SorryLyricsDisplay } from "./scenes/sorry/SorryLyricsDisplay";
 import { ScrollIndicator } from "./scenes/shared/ScrollIndicator";
+import { SorryChapterProgress } from "./ui/SorryChapterProgress";
 import { useStory } from "./story/StoryProvider";
 import {
   getChapterDefinition,
@@ -138,6 +139,7 @@ export default function Experience({
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [soundBlocked, setSoundBlocked] = useState(false);
   const [sorrySceneIndex, setSorrySceneIndex] = useState(-1);
+  const [sorryChapterProgress, setSorryChapterProgress] = useState(0);
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const transitionRef = useRef<gsap.core.Timeline | null>(null);
   const restoredFromStoryRef = useRef(false);
@@ -418,6 +420,7 @@ export default function Experience({
                 scenesHidden={scenesHidden}
                 onGoHome={onGoHome}
                 onSorrySceneChange={setSorrySceneIndex}
+                onSorryProgressChange={setSorryChapterProgress}
               />
             </Suspense>
             <pointLight position={[0, 5, 0]} intensity={1} color="white" />
@@ -445,9 +448,13 @@ export default function Experience({
           </>
         )}
         <LoaderOverlay visible={preloaderVisible} variant="pre" text={progressLabel} />
-        <button className="loaderSoundButton" type="button" onClick={handleToggleSound}>
-          {soundEnabled && !soundBlocked ? "Sound On" : "Enable Sound"}
-        </button>
+        {isSorryChapter && !preloaderVisible ? (
+          <SorryChapterProgress value={sorryChapterProgress} />
+        ) : (
+          <button className="loaderSoundButton" type="button" onClick={handleToggleSound}>
+            {soundEnabled && !soundBlocked ? "Sound On" : "Enable Sound"}
+          </button>
+        )}
         {!preloaderVisible && (
           <ChapterNav
             parts={parts}

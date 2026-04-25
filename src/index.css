@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./experience/scenes/shared/sceneFonts.css";
 
 html,
 body,
@@ -10,4 +11,12 @@ body,
 
 body {
   margin: 0;
+  font-family: var(--experience-font-family);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }

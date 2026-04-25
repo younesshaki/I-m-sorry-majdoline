@@ -17,9 +17,15 @@ type SorryChapterProps = {
   isActive?: boolean;
   onGoHome?: () => void;
   onSceneChange?: (index: number) => void;
+  onProgressChange?: (progress: number) => void;
 };
 
-export default function SorryChapter({ isActive = true, onGoHome, onSceneChange }: SorryChapterProps) {
+export default function SorryChapter({
+  isActive = true,
+  onGoHome,
+  onSceneChange,
+  onProgressChange,
+}: SorryChapterProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const activeScene = useActiveNarrativeScene(overlayRef, sorryScenes, isActive);
   const [phase, setPhase] = useState<SorryPhase>("cinematic");
@@ -49,6 +55,21 @@ export default function SorryChapter({ isActive = true, onGoHome, onSceneChange 
     // so the parent stays dormant until the GSAP timeline confirms scene 0.
     onSceneChange?.(activeSceneIndex);
   }, [activeSceneIndex, onSceneChange]);
+
+  useEffect(() => {
+    if (!isActive) {
+      onProgressChange?.(0);
+      return;
+    }
+
+    if (phase !== "cinematic") {
+      onProgressChange?.(100);
+      return;
+    }
+
+    const completedSceneCount = Math.max(0, activeSceneIndex);
+    onProgressChange?.((completedSceneCount / sorryScenes.length) * 100);
+  }, [activeSceneIndex, isActive, onProgressChange, phase]);
 
   const { recordChoice, setAnalytics, setCurrentLocation, state: storyState } = useStory();
 

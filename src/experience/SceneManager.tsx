@@ -6,12 +6,14 @@ interface SceneManagerProps {
   scenesHidden?: boolean;
   onGoHome?: () => void;
   onSorrySceneChange?: (index: number) => void;
+  onSorryProgressChange?: (progress: number) => void;
 }
 
 export default function SceneManager({
   scenesHidden = false,
   onGoHome,
   onSorrySceneChange,
+  onSorryProgressChange,
 }: SceneManagerProps) {
   return (
     <group visible={!scenesHidden}>
@@ -20,6 +22,7 @@ export default function SceneManager({
           isActive={!scenesHidden}
           onGoHome={onGoHome}
           onSceneChange={onSorrySceneChange}
+          onProgressChange={onSorryProgressChange}
         />
       </Suspense>
     </group>
