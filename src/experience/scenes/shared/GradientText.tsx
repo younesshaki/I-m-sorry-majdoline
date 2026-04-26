@@ -1,111 +1,23 @@
-import { useState, useCallback, useEffect, useRef, type ReactNode } from "react";
-import { motion, useMotionValue, useAnimationFrame, useTransform } from "motion/react";
+import type { ReactNode } from "react";
 import "./GradientText.css";
 
 interface GradientTextProps {
   children: ReactNode;
   className?: string;
   colors?: string[];
-  animationSpeed?: number;
-  showBorder?: boolean;
-  direction?: "horizontal" | "vertical" | "diagonal";
-  pauseOnHover?: boolean;
-  yoyo?: boolean;
 }
 
-export default function GradientText({
-  children,
-  className = "",
-  colors = ["#8a0f1f", "#ff3347", "#b81c2e"],
-  animationSpeed = 8,
-  showBorder = false,
-  direction = "horizontal",
-  pauseOnHover = false,
-  yoyo = true,
-}: GradientTextProps) {
-  const [isPaused, setIsPaused] = useState(false);
-  const progress = useMotionValue(0);
-  const elapsedRef = useRef(0);
-  const lastTimeRef = useRef<number | null>(null);
+export default function GradientText({ children, className = "", colors }: GradientTextProps) {
+  const gradient = colors
+    ? [...colors, colors[0]].join(", ")
+    : "#8a0f1f, #ff3347, #b81c2e, #8a0f1f";
 
-  const animationDuration = animationSpeed * 1000;
-
-  useAnimationFrame((time) => {
-    if (isPaused) {
-      lastTimeRef.current = null;
-      return;
-    }
-    if (lastTimeRef.current === null) {
-      lastTimeRef.current = time;
-      return;
-    }
-    const deltaTime = time - lastTimeRef.current;
-    lastTimeRef.current = time;
-    elapsedRef.current += deltaTime;
-
-    if (yoyo) {
-      const fullCycle = animationDuration * 2;
-      const cycleTime = elapsedRef.current % fullCycle;
-      progress.set(
-        cycleTime < animationDuration
-          ? (cycleTime / animationDuration) * 100
-          : 100 - ((cycleTime - animationDuration) / animationDuration) * 100
-      );
-    } else {
-      progress.set((elapsedRef.current / animationDuration) * 100);
-    }
-  });
-
-  useEffect(() => {
-    elapsedRef.current = 0;
-    progress.set(0);
-  }, [animationSpeed, yoyo]);
-
-  const backgroundPosition = useTransform(progress, (p) => {
-    if (direction === "vertical") return `50% ${p}%`;
-    return `${p}% 50%`;
-  });
-
-  const handleMouseEnter = useCallback(() => {
-    if (pauseOnHover) setIsPaused(true);
-  }, [pauseOnHover]);
-
-  const handleMouseLeave = useCallback(() => {
-    if (pauseOnHover) setIsPaused(false);
-  }, [pauseOnHover]);
-
-  const gradientAngle =
-    direction === "horizontal" ? "to right" : direction === "vertical" ? "to bottom" : "to bottom right";
-  const gradientColors = [...colors, colors[0]].join(", ");
-  const gradientStyle = {
-    backgroundImage: `linear-gradient(${gradientAngle}, ${gradientColors})`,
-    backgroundSize: direction === "horizontal" ? "300% 100%" : direction === "vertical" ? "100% 300%" : "300% 300%",
-    backgroundRepeat: "repeat",
-  };
-
-  const clipStyle = {
-    WebkitBackgroundClip: "text" as const,
-    backgroundClip: "text" as const,
-    WebkitTextFillColor: "transparent" as const,
-    color: "transparent" as const,
-  };
-
-  // Uses <span> (not <div>) so it's safe inside <p> tags
   return (
-    <motion.span
-      className={`animated-gradient-text ${showBorder ? "with-border" : ""} ${className}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <span
+      className={`narrative-gradient-text ${className}`}
+      style={{ backgroundImage: `linear-gradient(to right, ${gradient})` }}
     >
-      {showBorder && (
-        <motion.span className="gradient-overlay" style={{ ...gradientStyle, backgroundPosition }} />
-      )}
-      <motion.span
-        className="text-content"
-        style={{ ...gradientStyle, ...clipStyle, backgroundPosition }}
-      >
-        {children}
-      </motion.span>
-    </motion.span>
+      {children}
+    </span>
   );
 }

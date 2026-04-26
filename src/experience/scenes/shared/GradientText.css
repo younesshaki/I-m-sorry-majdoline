@@ -1,28 +1,15 @@
-.animated-gradient-text {
+.narrative-gradient-text {
   display: inline;
-  position: relative;
-}
-
-.animated-gradient-text .text-content {
-  display: inline;
+  background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+  animation: narrativeGradientShift 4s ease infinite;
 }
 
-.animated-gradient-text.with-border {
-  padding: 1px 3px;
-  border-radius: 3px;
-  position: relative;
-}
-
-.animated-gradient-text.with-border .gradient-overlay {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
+@keyframes narrativeGradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
