@@ -83,6 +83,13 @@ export default function GradientText({
     backgroundRepeat: "repeat",
   };
 
+  const clipStyle = {
+    WebkitBackgroundClip: "text" as const,
+    backgroundClip: "text" as const,
+    WebkitTextFillColor: "transparent" as const,
+    color: "transparent" as const,
+  };
+
   // Uses <span> (not <div>) so it's safe inside <p> tags
   return (
     <motion.span
@@ -93,7 +100,10 @@ export default function GradientText({
       {showBorder && (
         <motion.span className="gradient-overlay" style={{ ...gradientStyle, backgroundPosition }} />
       )}
-      <motion.span className="text-content" style={{ ...gradientStyle, backgroundPosition }}>
+      <motion.span
+        className="text-content"
+        style={{ ...gradientStyle, ...clipStyle, backgroundPosition }}
+      >
         {children}
       </motion.span>
     </motion.span>
