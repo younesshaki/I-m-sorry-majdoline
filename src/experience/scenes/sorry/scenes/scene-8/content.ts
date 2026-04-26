@@ -8,11 +8,11 @@ export const scene8: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "Trust does not always break like thunder." },
-    { text: "Sometimes it cracks like glass: quiet, sharp, almost invisible." },
-    { text: "You only understand the damage when you try to touch it again." },
-    { text: "It is the kind of fracture that changes how every next word is received." },
-    { text: "Even gentleness can arrive too late if you were the one who cut first." },
-    { text: "I understand that repair cannot be demanded just because regret is real." },
+    { text: "You are handling too much and facing too many hits." },
+    { text: "Once again, I was one of those hits instead of being your wall." },
+    { text: "You keep moving because stopping would mean feeling it all at once." },
+    { text: "I know that about you." },
+    { text: "I know you carry things quietly, without complaint." },
+    { text: "And I did not want to add to that weight any more than I already had." },
   ],
 };

@@ -8,11 +8,11 @@ export const scene10: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "Morning still comes after a bad night." },
-    { text: "That does not mean anything is repaired." },
-    { text: "It only means there is still time to face what was done." },
-    { text: "A new day is not forgiveness, only another chance to tell the truth properly." },
-    { text: "What comes next has to be slower, cleaner, and more real than the harm was." },
-    { text: "If there is any path forward, it begins with responsibility and stays there." },
+    { text: "You are very special to me and you will always keep inspiring me." },
+    { text: "I pray you get everything I tried to give you and couldn't." },
+    { text: "I pray you get the ease, the peace, the happiness and safety you deserve." },
+    { text: "I pray that you don't suffer anymore." },
+    { text: "That life becomes easy for you." },
+    { text: "That your soul and mind finally get the chance to rest." },
   ],
 };

@@ -1,7 +1,26 @@
 import { Html } from "@react-three/drei";
-import type { CSSProperties, MutableRefObject, RefObject } from "react";
-import type { NarrativeScene } from "./narrativeTypes";
+import type { CSSProperties, MutableRefObject, ReactNode, RefObject } from "react";
+import type { NarrativeLine, NarrativeScene } from "./narrativeTypes";
+import GradientText from "./GradientText";
 import "./NarrativeBase.css";
+
+function renderLine(line: NarrativeLine): ReactNode {
+  if (!line.highlights?.length) return line.text;
+
+  const parts: ReactNode[] = [];
+  let remaining = line.text;
+
+  for (const phrase of line.highlights) {
+    const idx = remaining.indexOf(phrase);
+    if (idx === -1) continue;
+    if (idx > 0) parts.push(remaining.slice(0, idx));
+    parts.push(<GradientText key={phrase}>{phrase}</GradientText>);
+    remaining = remaining.slice(idx + phrase.length);
+  }
+  if (remaining) parts.push(remaining);
+
+  return <>{parts}</>;
+}
 
 type NarrativeOverlayProps = {
   isActive: boolean;
@@ -80,7 +99,7 @@ export function NarrativeOverlay({
                           key={`left-${index}`}
                           className={`${lineClass}${line.className ? ` ${line.className}` : ""}`}
                         >
-                          {line.text}
+                          {renderLine(line)}
                         </p>
                       ))}
                     </div>
@@ -90,7 +109,7 @@ export function NarrativeOverlay({
                           key={`right-${index}`}
                           className={`${lineClass}${line.className ? ` ${line.className}` : ""}`}
                         >
-                          {line.text}
+                          {renderLine(line)}
                         </p>
                       ))}
                     </div>
@@ -100,7 +119,7 @@ export function NarrativeOverlay({
                       key={`merge-${index}`}
                       className={`${lineClass}${line.className ? ` ${line.className}` : ""}`}
                     >
-                      {line.text}
+                      {renderLine(line)}
                     </p>
                   ))}
                 </>
@@ -112,7 +131,7 @@ export function NarrativeOverlay({
                     data-start-time={line.startTime !== undefined ? String(line.startTime) : undefined}
                     data-end-time={line.endTime !== undefined ? String(line.endTime) : undefined}
                   >
-                    {line.text}
+                    {renderLine(line)}
                   </p>
                 ))
               )}

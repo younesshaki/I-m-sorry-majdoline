@@ -8,6 +8,6 @@ export const scene11: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "I am sorry, Majdoline." },
+    { text: "I am sorry, Majdoline.", highlights: ["Majdoline"] },
   ],
 };

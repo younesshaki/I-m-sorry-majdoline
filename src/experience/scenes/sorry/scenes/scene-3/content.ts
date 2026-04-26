@@ -8,11 +8,11 @@ export const scene3: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "There is a distance that appears before anyone leaves." },
-    { text: "It starts in the chest, then reaches the eyes, then the hands." },
-    { text: "I felt it and still chose the wrong direction." },
-    { text: "I saw the hurt arrive and answered it with more harm instead of restraint." },
-    { text: "That is the part that stays with me most: I had time to stop and did not." },
-    { text: "The worst mistakes are often not sudden, but allowed." },
+    { text: "I know I haven't been easy, nor understanding most times." },
+    { text: "I know it seemed like I lacked consideration." },
+    { text: "But I always felt very bad every time we argued." },
+    { text: "Every time I made life difficult for you instead of easy." },
+    { text: "I felt the distance growing and still chose the wrong direction." },
+    { text: "I had time to stop. I did not stop." },
   ],
 };

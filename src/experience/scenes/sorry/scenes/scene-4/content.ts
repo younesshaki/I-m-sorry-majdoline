@@ -8,11 +8,11 @@ export const scene4: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "Anger always promises power and leaves behind ash." },
+    { text: "Deep down, my intention has always been to be nothing but caring." },
+    { text: "To show it with my words and with my actions." },
+    { text: "I have failed.", highlights: ["I have failed"] },
+    { text: "Anger always promises relief and leaves behind ash." },
     { text: "It burns the wrong thing first." },
-    { text: "By the time it cools, you are standing in what mattered." },
-    { text: "It makes destruction feel like honesty for a few dangerous seconds." },
-    { text: "Then it leaves you alone with the truth that you chose the ugliest version of yourself." },
-    { text: "I hate that I let that version speak to you." },
+    { text: "I hate that I let it speak to you." },
   ],
 };

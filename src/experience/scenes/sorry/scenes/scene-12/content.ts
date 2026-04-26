@@ -8,11 +8,9 @@ export const scene12: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "Thank you." },
-    { text: "That means more than I can say." },
-    { text: "I will not take it lightly." },
-    { text: "I will do better." },
-    { text: "For you." },
-    { text: "Always." },
+    { text: "I know this is not a reset." },
+    { text: "It is a door you did not have to open." },
+    { text: "I will walk through it gently." },
+    { text: "And I will remember why." },
   ],
 };

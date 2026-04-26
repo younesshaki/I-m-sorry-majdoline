@@ -1,6 +1,8 @@
 export type NarrativeLine = {
   text: string;
   className?: string;
+  /** Substrings to wrap in animated gradient text */
+  highlights?: string[];
   /** Seconds into the VO when this line should appear. If omitted, uses auto-calculated timing. */
   startTime?: number;
   /** Seconds into the VO when this line should disappear. If omitted, stays until scene ends. */

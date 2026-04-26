@@ -8,11 +8,11 @@ export const scene5: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "A city at night can look calm while everything inside you is loud." },
-    { text: "Streetlights pass like unanswered questions." },
-    { text: "You keep moving because stopping would mean hearing yourself clearly." },
-    { text: "Every reflection in the window looks like a different version of the same regret." },
-    { text: "The roads stay open, but your chest feels closed." },
-    { text: "You begin to understand that motion is not the same thing as escape." },
+    { text: "Trust does not always break like thunder." },
+    { text: "Sometimes it cracks like glass: quiet, sharp, almost invisible." },
+    { text: "I have failed to protect you." },
+    { text: "I have failed to protect the only person who means everything to me.", highlights: ["everything to me"] },
+    { text: "I failed to reward your patience." },
+    { text: "I should have been your wall." },
   ],
 };

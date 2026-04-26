@@ -41,6 +41,7 @@
   color: rgba(245, 238, 231, 0.88);
   font-family: var(--experience-font-family);
   font-size: var(--progress-circle-text);
+  font-weight: 800;
   line-height: 1;
   letter-spacing: 0.04em;
   transform: translateY(1px);

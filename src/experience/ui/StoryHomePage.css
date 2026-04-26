@@ -133,6 +133,10 @@
   filter: saturate(0.45);
 }
 
+.storyHome__option3dWrap--locked .storyHome__option3dImage {
+  filter: grayscale(1) contrast(1.05) brightness(0.82);
+}
+
 .storyHome__option3dTitle {
   position: relative;
   z-index: 1;

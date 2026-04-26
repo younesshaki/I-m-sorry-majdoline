@@ -15,7 +15,7 @@ type ProgressBarCircleProps = {
 const SIZE_MAP: Record<ProgressBarCircleSize, { px: number; stroke: number; text: string }> = {
   xxs: { px: 38, stroke: 3, text: "0.62rem" },
   xs: { px: 48, stroke: 3.5, text: "0.68rem" },
-  sm: { px: 60, stroke: 4, text: "0.76rem" },
+  sm: { px: 84, stroke: 5.5, text: "1.02rem" },
   md: { px: 78, stroke: 5, text: "0.88rem" },
   lg: { px: 96, stroke: 6, text: "1rem" },
 };
