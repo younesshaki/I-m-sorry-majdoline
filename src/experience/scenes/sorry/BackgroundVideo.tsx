@@ -33,6 +33,9 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
   // Two video elements; we alternate which one is "active" (opacity 1)
   const videoARef = useRef<HTMLVideoElement | null>(null);
   const videoBRef = useRef<HTMLVideoElement | null>(null);
+  // Third hidden element used only for lookahead prefetching
+  const preloadVideoRef = useRef<HTMLVideoElement | null>(null);
+  const preloadedIndexRef = useRef(-1);
 
   // 0 = A is active, 1 = B is active
   const activeSlotRef = useRef<0 | 1>(0);
@@ -44,6 +47,22 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
   // Keep a live ref to activeSceneIndex for timeupdate callback
   useEffect(() => {
     activeSceneIndexRef.current = activeSceneIndex;
+  }, [activeSceneIndex]);
+
+  // ── Lookahead preload — fetch the next video 2 scenes early ───────────────
+  useEffect(() => {
+    const pv = preloadVideoRef.current;
+    if (!pv) return;
+
+    const curVideoIdx = SCENE_TO_VIDEO[Math.min(activeSceneIndex, 10)] ?? 0;
+    const lookAheadScene = Math.min(activeSceneIndex + 2, 10);
+    const nextVideoIdx = SCENE_TO_VIDEO[lookAheadScene] ?? curVideoIdx;
+
+    if (nextVideoIdx === curVideoIdx || nextVideoIdx === preloadedIndexRef.current) return;
+
+    preloadedIndexRef.current = nextVideoIdx;
+    pv.src = VIDEOS[nextVideoIdx];
+    pv.load();
   }, [activeSceneIndex]);
 
   // ── Initial load ──────────────────────────────────────────────────────────
@@ -229,6 +248,14 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
           opacity: 0,
           filter: "blur(0px)",
         }}
+      />
+      {/* Hidden lookahead buffer — fetches the next video before the transition */}
+      <video
+        ref={preloadVideoRef}
+        muted
+        playsInline
+        preload="auto"
+        style={{ display: "none" }}
       />
     </div>
   );
