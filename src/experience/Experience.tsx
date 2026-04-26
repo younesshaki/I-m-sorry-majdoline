@@ -18,8 +18,14 @@ import { SoundProvider } from "./soundContext";
 import { useSmoothScroll } from "./hooks/useSmoothScroll";
 import { BackgroundVideo as SorryBackgroundVideo } from "./scenes/sorry/BackgroundVideo";
 import { SorryLyricsDisplay } from "./scenes/sorry/SorryLyricsDisplay";
+import {
+  preloadSorryBackgroundVideos,
+  subscribeToSorryVideoPreload,
+  type VideoPreloadSnapshot,
+} from "./scenes/sorry/videoPreloadCache";
 import { ScrollIndicator } from "./scenes/shared/ScrollIndicator";
 import { SorryChapterProgress } from "./ui/SorryChapterProgress";
+import { ButterflySwarm } from "./ui/ButterflySwarm";
 import { useStory } from "./story/StoryProvider";
 import {
   getChapterDefinition,
@@ -140,6 +146,11 @@ export default function Experience({
   const [soundBlocked, setSoundBlocked] = useState(false);
   const [sorrySceneIndex, setSorrySceneIndex] = useState(-1);
   const [sorryChapterProgress, setSorryChapterProgress] = useState(0);
+  const [sorryVideoPreload, setSorryVideoPreload] = useState<VideoPreloadSnapshot>({
+    status: "idle",
+    progress: 0,
+    error: null,
+  });
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const transitionRef = useRef<gsap.core.Timeline | null>(null);
   const restoredFromStoryRef = useRef(false);
@@ -152,10 +163,20 @@ export default function Experience({
     "Loading Part 6",
     "Loading Sorry",
   ];
-  const progressLabel = isLoading ? `Loading ${progress}%` : "Ready";
+  const isSorryChapter = visiblePartIndex === 6 && visibleChapterIndex === 0;
+  const threeAssetProgress = isLoading ? progress : 100;
+  const videoAssetProgress = sorryVideoPreload.status === "ready" ? 100 : sorryVideoPreload.progress;
+  const combinedSorryProgress = Math.round((threeAssetProgress + videoAssetProgress) / 2);
+  const progressLabel = isSorryChapter
+    ? `Loading ${Math.min(99, combinedSorryProgress)}%`
+    : isLoading
+      ? `Loading ${progress}%`
+      : "Ready";
   const loaderText = isLoading
     ? progressLabel
-    : loaderTextByPart[visiblePartIndex] ?? "Loading...";
+    : isSorryChapter && !initialRevealReady
+      ? progressLabel
+      : loaderTextByPart[visiblePartIndex] ?? "Loading...";
   const loaderVariant: LoaderVariant = (
     visiblePartIndex === 0
       ? "a"
@@ -169,7 +190,6 @@ export default function Experience({
               ? "e"
               : "f"
   );
-  const isSorryChapter = visiblePartIndex === 6 && visibleChapterIndex === 0;
   const shouldShowLoader = showLoader && !canHideLoader;
   const preloaderVisible = !initialRevealReady;
   const scenesHidden = shouldShowLoader || preloaderVisible || fade > 0.01;
@@ -190,6 +210,25 @@ export default function Experience({
   useEffect(() => {
     setSceneIndex(visibleChapterIndex + 1);
   }, [visibleChapterIndex]);
+
+  useEffect(() => {
+    return subscribeToSorryVideoPreload(setSorryVideoPreload);
+  }, []);
+
+  useEffect(() => {
+    if (!isSorryChapter || initialRevealReady) return;
+    void preloadSorryBackgroundVideos();
+  }, [initialRevealReady, isSorryChapter]);
+
+  useEffect(() => {
+    if (!isSorryChapter || sorryVideoPreload.status !== "error" || initialRevealReady) return;
+
+    const retry = window.setTimeout(() => {
+      void preloadSorryBackgroundVideos();
+    }, 3000);
+
+    return () => window.clearTimeout(retry);
+  }, [initialRevealReady, isSorryChapter, sorryVideoPreload.status]);
 
   useEffect(() => {
     if (!storyReady) {
@@ -277,13 +316,15 @@ export default function Experience({
       return;
     }
 
-    if (preloadMinElapsed && !isLoading) {
+    const sorryVideosReady = !isSorryChapter || sorryVideoPreload.status === "ready";
+
+    if (preloadMinElapsed && !isLoading && sorryVideosReady) {
       const rafId = window.requestAnimationFrame(() => {
         setModelsPreloaded(true);
       });
       return () => window.cancelAnimationFrame(rafId);
     }
-  }, [isLoading, preloadMinElapsed, modelsPreloaded]);
+  }, [isLoading, isSorryChapter, preloadMinElapsed, modelsPreloaded, sorryVideoPreload.status]);
 
   useEffect(() => {
     if (!modelsPreloaded || initialRevealReady) {
@@ -370,7 +411,13 @@ export default function Experience({
   return (
     <SoundProvider value={{ soundEnabled, soundBlocked }}>
       <div style={{ position: "relative", width: "100%", height: "100%" }}>
-        {isSorryChapter ? <SorryBackgroundVideo isVisible activeSceneIndex={sorrySceneIndex} /> : null}
+        {isSorryChapter ? (
+          <SorryBackgroundVideo
+            isVisible={!preloaderVisible}
+            activeSceneIndex={sorrySceneIndex}
+            shouldPlay={!preloaderVisible}
+          />
+        ) : null}
         {isSorryChapter ? <SorryLyricsDisplay activeSceneIndex={sorrySceneIndex} isActive={isSorryChapter} /> : null}
         <ModelPreloader />
         <CanvasErrorBoundary key={`part-${visiblePartIndex}-chapter-${visibleChapterIndex}`}>
@@ -464,6 +511,7 @@ export default function Experience({
             onGoHome={onGoHome}
           />
         )}
+        {!isSorryChapter && <ButterflySwarm />}
         {/* Debug panel rendered outside Canvas to avoid R3F reconciler issues */}
         <DebugPanel enabled={devToolsEnabled && debugEnabled} />
         {/* ScrollIndicator rendered outside Canvas to avoid R3F reconciler issues */}

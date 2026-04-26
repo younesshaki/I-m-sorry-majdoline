@@ -1,6 +1,8 @@
 import { motion, type Transition } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type FC } from "react";
+import { FlipWords } from "./ui/flip-words";
 import GradientText from "./GradientText";
+import type { NarrativeLine } from "@/experience/scenes/shared/narrativeTypes";
 
 type BlurTextProps = {
   text?: string;
@@ -16,6 +18,7 @@ type BlurTextProps = {
   onAnimationComplete?: () => void;
   stepDuration?: number;
   highlights?: string[];
+  flipWords?: NarrativeLine["flipWords"];
 };
 
 const buildKeyframes = (
@@ -46,6 +49,7 @@ const BlurText: FC<BlurTextProps> = ({
   onAnimationComplete,
   stepDuration = 0.35,
   highlights = [],
+  flipWords,
 }) => {
   const elements = useMemo(() => {
     return animateBy === "words" ? text.split(" ") : text.split("");
@@ -109,15 +113,32 @@ const BlurText: FC<BlurTextProps> = ({
     () => new Set(highlights.map((highlight) => highlight.trim().toLowerCase()).filter(Boolean)),
     [highlights]
   );
+  const normalizedFlipTarget = flipWords?.target.trim().toLowerCase() ?? "";
 
-  const renderSegment = (segment: string) => {
+  const renderSegment = (segment: string, index: number) => {
     if (animateBy !== "words" || normalizedHighlights.size === 0) {
-      return segment === " " ? "\u00A0" : segment;
+      if (!normalizedFlipTarget) return segment === " " ? "\u00A0" : segment;
     }
 
     const match = segment.match(/^(.+?)([.,!?;:]*)$/);
     const word = match?.[1] ?? segment;
     const punctuation = match?.[2] ?? "";
+
+    if (flipWords && normalizedFlipTarget === word.toLowerCase()) {
+      const startDelayMs = flipWords.startDelayMs ?? index * delay + totalDuration * 1000 + 120;
+
+      return (
+        <>
+          <FlipWords
+            words={flipWords.words}
+            intervalMs={flipWords.intervalMs}
+            startDelayMs={startDelayMs}
+            className="sorryFlipWord"
+          />
+          {punctuation}
+        </>
+      );
+    }
 
     if (!normalizedHighlights.has(word.toLowerCase())) {
       return segment;
@@ -164,7 +185,7 @@ const BlurText: FC<BlurTextProps> = ({
               willChange: "transform, filter, opacity",
             }}
           >
-            {renderSegment(segment)}
+            {renderSegment(segment, index)}
             {animateBy === "words" && index < elements.length - 1 && "\u00A0"}
           </motion.span>
         );

@@ -3,6 +3,14 @@ export type NarrativeLine = {
   className?: string;
   /** Substrings to wrap in animated gradient text */
   highlights?: string[];
+  /** Replaces one word with an inline word cycle and extends the line hold time. */
+  flipWords?: {
+    target: string;
+    words: string[];
+    intervalMs?: number;
+    startDelayMs?: number;
+    finalHoldMs?: number;
+  };
   /** Seconds into the VO when this line should appear. If omitted, uses auto-calculated timing. */
   startTime?: number;
   /** Seconds into the VO when this line should disappear. If omitted, stays until scene ends. */

@@ -8,7 +8,15 @@ export const scene1: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "I have been carrying this for weeks." },
+    {
+      text: "I have been carrying this for weeks.",
+      flipWords: {
+        target: "weeks",
+        words: ["weeks", "days", "minutes", "seconds"],
+        intervalMs: 1500,
+        finalHoldMs: 1500,
+      },
+    },
     { text: "The weight of what I said, and the silence left after it." },
     { text: "I know no amount of regret can undo the damage.", highlights: ["damage"] },
     { text: "No amount of anger, pain, or concern gives me the right to hurt you the way I did." },

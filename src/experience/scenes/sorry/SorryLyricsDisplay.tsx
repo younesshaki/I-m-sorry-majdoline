@@ -22,10 +22,30 @@ const MAX_HOLD_MS        = 7400;  // maximum reading time per line
 const MS_PER_WORD        = 440;   // reading-speed multiplier
 const BLUR_TEXT_DELAY_MS = 280;
 const BLUR_TEXT_STEP_MS  = 350;
+const DEFAULT_FLIP_INTERVAL_MS = 900;
+const DEFAULT_FLIP_FINAL_HOLD_MS = 1300;
 
-function holdDuration(text: string): number {
+function flipWordsDuration(line: NarrativeLine): number {
+  const flipWords = line.flipWords;
+  if (!flipWords || flipWords.words.length <= 1) return 0;
+
+  const interval = flipWords.intervalMs ?? DEFAULT_FLIP_INTERVAL_MS;
+  const target = flipWords.target.trim().toLowerCase();
+  const targetIndex = line.text
+    .trim()
+    .split(/\s+/)
+    .findIndex((word) => word.replace(/[.,!?;:]*$/, "").toLowerCase() === target);
+  const autoStartDelay = targetIndex >= 0 ? targetIndex * BLUR_TEXT_DELAY_MS + BLUR_TEXT_STEP_MS * 2 + 120 : 0;
+  const startDelay = flipWords.startDelayMs ?? autoStartDelay;
+  const finalHold = flipWords.finalHoldMs ?? DEFAULT_FLIP_FINAL_HOLD_MS;
+  return startDelay + (flipWords.words.length - 1) * interval + finalHold;
+}
+
+function holdDuration(line: NarrativeLine): number {
+  const text = line.text;
   const words = text.trim().split(/\s+/).length;
-  return Math.min(MAX_HOLD_MS, Math.max(MIN_HOLD_MS, words * MS_PER_WORD));
+  const readingHold = Math.min(MAX_HOLD_MS, Math.max(MIN_HOLD_MS, words * MS_PER_WORD));
+  return Math.max(readingHold, flipWordsDuration(line));
 }
 
 function revealFallbackDuration(text: string): number {
@@ -130,7 +150,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
       }
 
       animateLineIn(lines[index], () => {
-        const hold = holdDuration(lines[index].text);
+        const hold = holdDuration(lines[index]);
 
         after(() => {
           animateLineOut(() => {
@@ -253,6 +273,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
             rootMargin="0px"
             stepDuration={BLUR_TEXT_STEP_MS / 1000}
             highlights={currentLine.highlights}
+            flipWords={currentLine.flipWords}
             onAnimationComplete={handleSplitAnimationComplete}
           />
         ) : null}

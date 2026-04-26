@@ -1,16 +1,19 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import {
+  sorryForgivenessMusicUrl,
   sorryScene1To4MusicUrl,
   sorryScene5To8MusicUrl,
-  sorryScene9To10MusicUrl,
+  sorryScene9To11MusicUrl,
 } from "./audio";
 
 // Scene index → which track (0-indexed)
-// scenes 0-3  → track 0 (Ghost)
+// scenes 0-3  → track 0 (BTS)
 // scenes 4-7  → track 1 (Faouzia)
-// scenes 8-10 → track 2 (ENHYPEN)
-function trackForScene(sceneIndex: number): number {
+// scenes 8-10 → track 2 (Ghost)
+// forgiveness + scene 12 → track 3 (ENHYPEN)
+function trackForScene(sceneIndex: number, useForgivenessMusic: boolean): number {
+  if (useForgivenessMusic) return 3;
   if (sceneIndex <= 3) return 0;
   if (sceneIndex <= 7) return 1;
   return 2;
@@ -19,7 +22,8 @@ function trackForScene(sceneIndex: number): number {
 const TRACK_URLS = [
   sorryScene1To4MusicUrl,
   sorryScene5To8MusicUrl,
-  sorryScene9To10MusicUrl,
+  sorryScene9To11MusicUrl,
+  sorryForgivenessMusicUrl,
 ];
 
 const BASE_VOLUME   = 0.28;
@@ -28,8 +32,12 @@ const FADE_OUT_S    = 3.5;   // slow, emotional fade out
 const CROSSFADE_S   = 3.5;   // smooth track crossfade
 const START_DELAY_S = 1.2;   // slight breath before music begins
 
-export function useSorrySceneMusic(activeSceneIndex: number, isActive: boolean) {
-  const audiosRef   = useRef<(HTMLAudioElement | null)[]>([null, null, null]);
+export function useSorrySceneMusic(
+  activeSceneIndex: number,
+  isActive: boolean,
+  useForgivenessMusic = false
+) {
+  const audiosRef   = useRef<(HTMLAudioElement | null)[]>([null, null, null, null]);
   const activeTrack = useRef(-1);
 
   // Create all three audio elements once
@@ -76,7 +84,7 @@ export function useSorrySceneMusic(activeSceneIndex: number, isActive: boolean) 
   useEffect(() => {
     if (!isActive) return;
 
-    const nextTrack = trackForScene(activeSceneIndex);
+    const nextTrack = trackForScene(activeSceneIndex, useForgivenessMusic);
     if (nextTrack === activeTrack.current) return;
 
     const prevTrack = activeTrack.current;
@@ -121,5 +129,5 @@ export function useSorrySceneMusic(activeSceneIndex: number, isActive: boolean) 
       // Crossfade: start immediately so it overlaps with the fade-out
       startAndFade();
     }
-  }, [activeSceneIndex, isActive]);
+  }, [activeSceneIndex, isActive, useForgivenessMusic]);
 }

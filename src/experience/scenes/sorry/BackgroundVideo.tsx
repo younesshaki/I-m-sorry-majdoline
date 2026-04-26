@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import { sorrySceneAssets } from "./data/sceneAssets";
+import { getSorryVideoSource } from "./videoPreloadCache";
 
 type BackgroundVideoProps = {
   isVisible?: boolean;
   activeSceneIndex?: number;
+  shouldPlay?: boolean;
 };
 
 const VIDEOS = sorrySceneAssets.video.blenderScenes;
@@ -28,8 +30,15 @@ const PAUSE_POINTS: PausePoint[] = [
 // visible behind the blur until the new video has a frame ready.
 const BLUR_DURATION_MS = 380;
 const BLUR_PEAK_PX = 14;
+const INTRO_VIDEO_FADE_MS = 5200;
 
-export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: BackgroundVideoProps) {
+const videoSource = (index: number) => getSorryVideoSource(VIDEOS[index]);
+
+export function BackgroundVideo({
+  isVisible = true,
+  activeSceneIndex = 0,
+  shouldPlay = true,
+}: BackgroundVideoProps) {
   // Two video elements; we alternate which one is "active" (opacity 1)
   const videoARef = useRef<HTMLVideoElement | null>(null);
   const videoBRef = useRef<HTMLVideoElement | null>(null);
@@ -43,11 +52,48 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
   const activeSceneIndexRef = useRef(activeSceneIndex);
   const pausedAtPointRef = useRef<PausePoint | null>(null);
   const transitionInProgressRef = useRef(false);
+  const shouldPlayRef = useRef(shouldPlay);
+  const introFadeDoneRef = useRef(false);
 
   // Keep a live ref to activeSceneIndex for timeupdate callback
   useEffect(() => {
     activeSceneIndexRef.current = activeSceneIndex;
   }, [activeSceneIndex]);
+
+  useEffect(() => {
+    shouldPlayRef.current = shouldPlay;
+    const slots = [videoARef.current, videoBRef.current] as const;
+    const active = slots[activeSlotRef.current];
+
+    if (!active) return;
+
+    if (shouldPlay) {
+      const revealIntroVideo = () => {
+        if (introFadeDoneRef.current) return;
+        introFadeDoneRef.current = true;
+        active.style.transition = `opacity ${INTRO_VIDEO_FADE_MS}ms ease`;
+        active.style.opacity = "1";
+      };
+
+      if (!introFadeDoneRef.current) {
+        if (active.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+          window.setTimeout(revealIntroVideo, 160);
+        } else {
+          active.addEventListener("loadeddata", revealIntroVideo, { once: true });
+          active.addEventListener("canplay", revealIntroVideo, { once: true });
+        }
+      }
+
+      void active.play().catch(() => {});
+
+      return () => {
+        active.removeEventListener("loadeddata", revealIntroVideo);
+        active.removeEventListener("canplay", revealIntroVideo);
+      };
+    }
+
+    slots.forEach((video) => video?.pause());
+  }, [shouldPlay]);
 
   // ── Lookahead preload — fetch the next video 2 scenes early ───────────────
   useEffect(() => {
@@ -61,7 +107,7 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
     if (nextVideoIdx === curVideoIdx || nextVideoIdx === preloadedIndexRef.current) return;
 
     preloadedIndexRef.current = nextVideoIdx;
-    pv.src = VIDEOS[nextVideoIdx];
+    pv.src = videoSource(nextVideoIdx);
     pv.load();
   }, [activeSceneIndex]);
 
@@ -71,13 +117,18 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
     const back  = videoBRef.current;
     if (!front || !back) return;
 
-    // A starts visible, B stays invisible
-    front.style.opacity = "1";
+    // A starts hidden over black. It fades in only when the chapter is revealed.
+    front.style.opacity = "0";
     back.style.opacity  = "0";
 
-    front.src = VIDEOS[0];
+    front.src = videoSource(0);
+    front.currentTime = 0;
     currentVideoIndexRef.current = 0;
-    void front.play().catch(() => {});
+    if (shouldPlayRef.current) {
+      void front.play().catch(() => {});
+    } else {
+      front.load();
+    }
   }, []);
 
   // ── timeupdate — enforce pause points ────────────────────────────────────
@@ -133,7 +184,9 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
       const paused = pausedAtPointRef.current;
       if (paused && activeSceneIndex > paused.sceneIndex) {
         pausedAtPointRef.current = null;
-        void front.play().catch(() => {});
+        if (shouldPlayRef.current) {
+          void front.play().catch(() => {});
+        }
       }
       return;
     }
@@ -148,14 +201,16 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
     front.style.filter     = `blur(${BLUR_PEAK_PX}px)`;
 
     // Load the new video into the back buffer while the blur peaks
-    back.src = VIDEOS[nextVideoIndex];
+    back.src = videoSource(nextVideoIndex);
     back.style.opacity    = "0";
     back.style.filter     = "blur(0px)";
     back.style.transition = "none";
 
     const onCanPlay = () => {
       back.removeEventListener("canplay", onCanPlay);
-      void back.play().catch(() => {});
+      if (shouldPlayRef.current) {
+        void back.play().catch(() => {});
+      }
 
       // Step 2 — once back has a frame, crossfade: unblur front, bring back to opacity 1
       // We use a slight delay so the blur peak is visible for a beat
@@ -195,7 +250,9 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
       back.style.opacity    = "1";
       front.style.opacity   = "0";
       front.style.filter    = "blur(0px)";
-      void back.play().catch(() => {});
+      if (shouldPlayRef.current) {
+        void back.play().catch(() => {});
+      }
     }, BLUR_DURATION_MS * 4);
 
     return () => {
@@ -215,12 +272,12 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
         pointerEvents: "none",
         opacity: isVisible ? 1 : 0,
         transition: "opacity 500ms ease",
+        background: "#000000",
       }}
     >
       {/* Two video layers — only one visible at a time */}
       <video
         ref={videoARef}
-        autoPlay
         muted
         playsInline
         preload="auto"
@@ -230,7 +287,7 @@ export function BackgroundVideo({ isVisible = true, activeSceneIndex = 0 }: Back
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          opacity: 1,
+          opacity: 0,
           filter: "blur(0px)",
         }}
       />

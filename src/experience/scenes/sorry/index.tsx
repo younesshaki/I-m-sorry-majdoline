@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useGLTF } from "@react-three/drei";
 import { SorryScene } from "./SorryScene";
 import { SorryNarrative } from "./SorryNarrative";
 import { useSorryTimeline } from "./SorryTimeline";
 import { useSorrySceneMusic } from "./useSorrySceneMusic";
 import { useActiveNarrativeScene } from "../shared/useActiveNarrativeScene";
 import { sorryScenes } from "./data";
+import { sorrySceneAssets } from "./data/sceneAssets";
 import { ForgivenessScene } from "./ForgivenessScene";
 import { Scene12 } from "./Scene12";
 import { NoEndingScene } from "./NoEndingScene";
@@ -29,6 +31,13 @@ export default function SorryChapter({
   const overlayRef = useRef<HTMLDivElement>(null);
   const activeScene = useActiveNarrativeScene(overlayRef, sorryScenes, isActive);
   const [phase, setPhase] = useState<SorryPhase>("cinematic");
+
+  // Preload all 3D models in the background as soon as the chapter mounts.
+  // They're only needed at scene 12, so we intentionally excluded them from the
+  // preloader gate — by the time she reads scenes 1–11 they will be ready.
+  useEffect(() => {
+    Object.values(sorrySceneAssets.models).forEach((url) => useGLTF.preload(url));
+  }, []);
   const finalChoiceSceneId = "sorry-scene-11";
   const endingSceneId = "sorry-ending";
   const scene12Id = "sorry-scene-12";
@@ -73,7 +82,9 @@ export default function SorryChapter({
 
   const { recordChoice, setAnalytics, setCurrentLocation, state: storyState } = useStory();
 
-  useSorrySceneMusic(safeSceneIndex, isActive && phase === "cinematic");
+  const useForgivenessMusic = phase === "forgiveness" || phase === "scene12";
+  const musicActive = isActive && (phase === "cinematic" || useForgivenessMusic);
+  useSorrySceneMusic(safeSceneIndex, musicActive, useForgivenessMusic);
 
   const persistTrackedSceneState = useCallback(
     async (sceneId: string, analytics: StoryAnalytics) => {

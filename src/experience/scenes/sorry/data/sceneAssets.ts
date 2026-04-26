@@ -21,6 +21,6 @@ export const sorrySceneAssets = {
   },
 };
 
-export const chapterModelUrls: string[] = [
-  sorrySceneAssets.models.centerpiece,
-];
+// Models are not needed until scene 12 — preloaded lazily inside SorryChapter on mount,
+// so they don't block the preloader gate.
+export const chapterModelUrls: string[] = [];

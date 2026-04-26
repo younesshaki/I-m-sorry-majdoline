@@ -1,5 +1,6 @@
 import "./App.scss";
 import { useCallback, useState } from "react";
+import { OutsideSorryMusic } from "./experience/audio/OutsideSorryMusic";
 import { UiSoundProvider } from "./experience/audio/UiSoundProvider";
 import Experience from "./experience/Experience";
 import { StoryProvider } from "./experience/story/StoryProvider";
@@ -39,10 +40,15 @@ export default function App() {
   );
 
   const handleStartExperience = useCallback(() => setScreen("experience"), []);
+  const isSorryExperience =
+    screen === "experience" &&
+    entryPartIndex === SORRY_ENTRY.partIndex &&
+    entryChapterIndex === SORRY_ENTRY.chapterIndex;
 
   return (
     <div style={{ width: "100%", height: "100%", margin: 0, padding: 0, overflow: "hidden" }}>
       <UiSoundProvider>
+        <OutsideSorryMusic enabled={!isSorryExperience} />
         {screen === "gate" ? (
           <>
             <PhoneExperienceNotice />

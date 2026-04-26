@@ -8,8 +8,12 @@ export const scene10: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "You are very special to me and you will always keep inspiring me." },
-    { text: "I pray you get everything I tried to give you." },
+    { text: "I miss you more than life.", flipWords: {
+        target: "miss",
+        words: ["miss", "love", "care about", "respect"],
+        intervalMs: 1500,
+        finalHoldMs: 1500,
+      }, },
     { text: "I pray you get the ease, the peace, the happiness and safety you deserve." },
     { text: "I pray that you don't suffer anymore." },
     { text: "That life becomes easy for you." },

@@ -5,15 +5,21 @@ import { BirdSvg } from "../shared/BirdSvg";
 import type { LoaderComponentProps } from "../shared/types";
 import "./styles.css";
 
-export function Loader({ className }: LoaderComponentProps) {
+export function Loader({ className, text }: LoaderComponentProps) {
   const { active, progress } = useProgress();
+  const textProgress = Number(text.match(/(\d+)%/)?.[1]);
+  const hasTextProgress = Number.isFinite(textProgress);
   const [displayed, setDisplayed] = useState(0);
   const rafRef = useRef<number>(0);
   const currentRef = useRef(0);
 
   // Smoothly count up to the real progress value, always reaching 100 when done.
   useEffect(() => {
-    const target = active ? Math.round(progress) : 100;
+    const target = hasTextProgress
+      ? Math.max(0, Math.min(100, Math.round(textProgress)))
+      : active
+        ? Math.round(progress)
+        : 100;
 
     const tick = () => {
       const diff = target - currentRef.current;
@@ -30,10 +36,10 @@ export function Loader({ className }: LoaderComponentProps) {
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [active, progress]);
+  }, [active, hasTextProgress, progress, textProgress]);
 
   const pct = displayed;
-  const isReady = !active && pct >= 100;
+  const isReady = hasTextProgress ? pct >= 100 : !active && pct >= 100;
 
   const footer = (
     <div className="loading-progress-block">

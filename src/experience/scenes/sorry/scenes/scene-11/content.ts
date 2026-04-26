@@ -8,6 +8,15 @@ export const scene11: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "I am sorry, Majdoline.", highlights: ["Majdoline"] },
+    {
+      text: "I am sorry, Majdoline.",
+      highlights: ["Majdoline"],
+      flipWords: {
+        target: "Majdoline",
+        words: ["Majdoline", "Dounia", "my blessing", "warrior"],
+        intervalMs: 1500,
+        finalHoldMs: 1500,
+      },
+    },
   ],
 };
