@@ -7,6 +7,7 @@ import "../loaders/preloader/styles.css";
 const preloadGateBackground = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorry-entry.png";
 
 type Phase = "checking" | "auth" | "ready";
+type PasswordStep = "birthday" | "babyYoda";
 
 type PreloadGateProps = {
   onStart: () => void;
@@ -22,9 +23,12 @@ const ERROR_MESSAGES: Record<string, string> = {
 };
 
 const USERNAME_PLACEHOLDERS = ["choose a name"];
-const PASSWORD_PLACEHOLDERS = [
-  "the password is the number of letters in the birthday jar + baby yoda's name",
-];
+const BIRTHDAY_PASSWORD = "144";
+const BABY_YODA_PASSWORD = "woozi";
+const PASSWORD_PLACEHOLDERS: Record<PasswordStep, string[]> = {
+  birthday: ["how many letters are in the birthday jar?"],
+  babyYoda: ["what did you name baby yoda?"],
+};
 
 export default function PreloadGate({ onStart }: PreloadGateProps) {
   const { playGateClick, playHover } = useUiSounds();
@@ -37,6 +41,7 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordStep, setPasswordStep] = useState<PasswordStep>("birthday");
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -84,7 +89,20 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
     if (submitting) return;
     setErrorKey(null);
 
-    if (password.trim() !== ACCESS_PASSWORD) {
+    const normalizedPassword = password.trim().toLowerCase();
+
+    if (passwordStep === "birthday") {
+      if (normalizedPassword !== BIRTHDAY_PASSWORD) {
+        setErrorKey("wrong_password");
+        return;
+      }
+
+      setPassword("");
+      setPasswordStep("babyYoda");
+      return;
+    }
+
+    if (normalizedPassword !== BABY_YODA_PASSWORD) {
       setErrorKey("wrong_password");
       return;
     }
@@ -149,10 +167,11 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
               disabled={busy}
             />
             <PlaceholdersAndVanishInput
+              key={passwordStep}
               className="pgAuth__item pgAuth__vanishInput pgAuth__vanishInput--password"
               inputClassName="pgAuth__vanishInputField"
               placeholderClassName="pgAuth__vanishPlaceholder pgAuth__vanishPlaceholder--password"
-              placeholders={PASSWORD_PLACEHOLDERS}
+              placeholders={PASSWORD_PLACEHOLDERS[passwordStep]}
               type="password"
               value={password}
               onChange={(e) => { setPassword(e.target.value); setErrorKey(null); }}
@@ -168,7 +187,7 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
               disabled={busy || !username.trim() || !password.trim()}
               onMouseEnter={!busy ? playHover : undefined}
             >
-              {submitting ? "..." : "Enter"}
+              {submitting ? "..." : passwordStep === "birthday" ? "Next" : "Enter"}
             </button>
           </form>
         </div>

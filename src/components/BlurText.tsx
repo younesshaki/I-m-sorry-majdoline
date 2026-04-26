@@ -1,5 +1,6 @@
 import { motion, type Transition } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type FC } from "react";
+import GradientText from "./GradientText";
 
 type BlurTextProps = {
   text?: string;
@@ -14,6 +15,7 @@ type BlurTextProps = {
   easing?: (t: number) => number;
   onAnimationComplete?: () => void;
   stepDuration?: number;
+  highlights?: string[];
 };
 
 const buildKeyframes = (
@@ -43,6 +45,7 @@ const BlurText: FC<BlurTextProps> = ({
   easing = (t: number) => t,
   onAnimationComplete,
   stepDuration = 0.35,
+  highlights = [],
 }) => {
   const elements = useMemo(() => {
     return animateBy === "words" ? text.split(" ") : text.split("");
@@ -102,6 +105,33 @@ const BlurText: FC<BlurTextProps> = ({
     stepCount === 1 ? 0 : index / (stepCount - 1)
   );
   const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
+  const normalizedHighlights = useMemo(
+    () => new Set(highlights.map((highlight) => highlight.trim().toLowerCase()).filter(Boolean)),
+    [highlights]
+  );
+
+  const renderSegment = (segment: string) => {
+    if (animateBy !== "words" || normalizedHighlights.size === 0) {
+      return segment === " " ? "\u00A0" : segment;
+    }
+
+    const match = segment.match(/^(.+?)([.,!?;:]*)$/);
+    const word = match?.[1] ?? segment;
+    const punctuation = match?.[2] ?? "";
+
+    if (!normalizedHighlights.has(word.toLowerCase())) {
+      return segment;
+    }
+
+    return (
+      <>
+        <GradientText className="sorryGradientWord" animationSpeed={6} direction="horizontal">
+          {word}
+        </GradientText>
+        {punctuation}
+      </>
+    );
+  };
 
   return (
     <p
@@ -134,7 +164,7 @@ const BlurText: FC<BlurTextProps> = ({
               willChange: "transform, filter, opacity",
             }}
           >
-            {segment === " " ? "\u00A0" : segment}
+            {renderSegment(segment)}
             {animateBy === "words" && index < elements.length - 1 && "\u00A0"}
           </motion.span>
         );

@@ -8,8 +8,8 @@ export const scene8: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "You are handling too much and facing too many hits." },
-    { text: "Once again, I was one of those hits instead of being your wall." },
+    { text: "Life was already asking too much of you." },
+    { text: "And I became another weight, when I should have been shelter." },
     { text: "You keep moving because stopping would mean feeling it all at once." },
     { text: "I know that about you." },
     { text: "I know you carry things quietly, without complaint." },

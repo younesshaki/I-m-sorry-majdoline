@@ -4,6 +4,7 @@ import BlurText from "@/components/BlurText";
 import { getSorrySceneFontFamily } from "../shared/sceneTypography";
 import { sorryScenes } from "./data";
 import { sorryScrollGate } from "./sorryScrollGate";
+import type { NarrativeLine } from "../shared/narrativeTypes";
 
 type Props = {
   activeSceneIndex: number;
@@ -37,7 +38,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
   const timers   = useRef<ReturnType<typeof setTimeout>[]>([]);
   const currentSceneRef = useRef(-1);
   const lineInCompleteRef = useRef<(() => void) | null>(null);
-  const [currentLine, setCurrentLine] = useState("");
+  const [currentLine, setCurrentLine] = useState<NarrativeLine | null>(null);
   const [lineAnimationKey, setLineAnimationKey] = useState(0);
   const sceneFontFamily = getSorrySceneFontFamily(activeSceneIndex);
 
@@ -56,9 +57,10 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
   // text to visibly shift/jump between lines. We use only transform, opacity,
   // and filter so the element stays in its absolute center position.
 
-  const animateLineIn = useCallback((text: string, onDone: () => void) => {
+  const animateLineIn = useCallback((line: NarrativeLine, onDone: () => void) => {
     const el = lineRef.current;
     if (!el) { onDone(); return; }
+    const text = line.text;
 
     gsap.killTweensOf(el);
     lineInCompleteRef.current = onDone;
@@ -71,7 +73,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
       filter: "brightness(1) blur(0px)",
     });
 
-    setCurrentLine(text);
+    setCurrentLine(line);
     setLineAnimationKey((key) => key + 1);
 
     // Fallback keeps the story moving if a browser suppresses the animation callback.
@@ -107,7 +109,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
       filter: "brightness(0.4) blur(14px)",
       duration: DISAPPEAR_FADE_S,
       ease: "power2.inOut",
-      onComplete: () => setCurrentLine(""),
+      onComplete: () => setCurrentLine(null),
     });
   }, []);
 
@@ -120,14 +122,14 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
   // ── Line sequencer ───────────────────────────────────────────────────────
 
   const runLines = useCallback(
-    (lines: { text: string }[], index: number) => {
+    (lines: NarrativeLine[], index: number) => {
       if (index >= lines.length) {
         // Paragraph finished — allow the scroll-to-continue indicator.
         sorryScrollGate.open();
         return;
       }
 
-      animateLineIn(lines[index].text, () => {
+      animateLineIn(lines[index], () => {
         const hold = holdDuration(lines[index].text);
 
         after(() => {
@@ -149,7 +151,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
 
       const lineEl = lineRef.current;
       if (lineEl) gsap.set(lineEl, { opacity: 0 });
-      setCurrentLine("");
+      setCurrentLine(null);
 
       // Brief settling pause, then start lines
       after(() => runLines(scene.lines ?? [], 0), 400);
@@ -242,7 +244,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
         {currentLine ? (
           <BlurText
             key={lineAnimationKey}
-            text={currentLine}
+            text={currentLine.text}
             className="sorryBlurText"
             delay={BLUR_TEXT_DELAY_MS}
             animateBy="words"
@@ -250,6 +252,7 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
             threshold={0.1}
             rootMargin="0px"
             stepDuration={BLUR_TEXT_STEP_MS / 1000}
+            highlights={currentLine.highlights}
             onAnimationComplete={handleSplitAnimationComplete}
           />
         ) : null}

@@ -10,9 +10,9 @@ export const scene3: NarrativeScene = {
   lines: [
     { text: "I know I haven't been easy, nor understanding most times." },
     { text: "I know it seemed like I lacked consideration." },
-    { text: "But I always felt very bad every time we argued." },
+    { text: "After every argument, shame stayed longer than anger." },
     { text: "Every time I made life difficult for you instead of easy." },
-    { text: "I felt the distance growing and still chose the wrong direction." },
-    { text: "I had time to stop. I did not stop." },
+    { text: "I felt the tension growing and still chose the wrong direction." },
+    { text: "I had time to stop before I hurt you. I did not stop." },
   ],
 };
