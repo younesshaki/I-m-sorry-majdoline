@@ -15,8 +15,9 @@ import {
   CardContainer,
   CardItem,
 } from "@/components/ui/3d-card";
-import sorryOptionImage from "./ChatGPT Image Apr 25, 2026, 12_07_26 AM.png";
-import giftOptionImage from "./ChatGPT Image Apr 25, 2026, 12_08_42 AM.png";
+const CDN = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media";
+const sorryOptionImage = `${CDN}/sorry-option.png`;
+const giftOptionImage  = `${CDN}/gift-option.png`;
 import "./StoryHomePage.css";
 
 type StoryHomePageProps = {
