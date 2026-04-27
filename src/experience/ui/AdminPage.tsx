@@ -89,30 +89,44 @@ export default function AdminPage({ onExit }: AdminPageProps) {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Authorize: must be logged in AND have is_admin = true on profile
+  // Authorize: must be logged in AND have is_admin = true on profile.
+  // Uses the am_i_admin() SECURITY DEFINER function to avoid RLS/schema-cache pitfalls.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) {
+          console.warn("[admin] no session");
           if (!cancelled) {
             setAuthChecked(true);
             setAuthorized(false);
           }
           return;
         }
+
+        const { data: isAdminResult, error: rpcError } = await supabase.rpc("am_i_admin");
+        if (rpcError) {
+          console.warn("[admin] am_i_admin rpc error:", rpcError.message);
+        }
+        const isAdmin = isAdminResult === true;
+
+        // Resolve username for the header — the user can read their own profile via
+        // the existing "owner reads own profile" policy.
         const { data: profile } = await supabase
           .from("profiles")
-          .select("username, is_admin")
+          .select("username")
           .eq("id", session.user.id)
           .maybeSingle();
+
         if (cancelled) return;
-        const isAdmin = (profile?.is_admin as boolean | undefined) === true;
+        console.log("[admin] session.user.id:", session.user.id, "isAdmin:", isAdmin, "profile:", profile);
+
         setAuthorized(isAdmin);
-        setAdminUsername(profile?.username as string | null);
+        setAdminUsername((profile?.username as string | null) ?? null);
         setAuthChecked(true);
-      } catch {
+      } catch (err) {
+        console.warn("[admin] auth check threw:", err);
         if (!cancelled) {
           setAuthChecked(true);
           setAuthorized(false);

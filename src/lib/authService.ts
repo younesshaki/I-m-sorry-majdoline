@@ -64,13 +64,8 @@ export async function loginOrRegister(
       await supabase.auth.signInWithPassword({ email, password });
 
     if (signInData.session) {
-      // Update last_seen_at (fire-and-forget)
-      supabase
-        .from("profiles")
-        .update({ last_seen_at: new Date().toISOString() })
-        .eq("id", signInData.user!.id)
-        .then(() => {});
-
+      // last_seen_at is updated server-side by the update_last_seen_trigger
+      // whenever a session_started event is inserted — see migration 008.
       void logStoryEvent({
         type: "session_started",
         username,
