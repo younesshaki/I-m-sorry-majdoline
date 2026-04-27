@@ -9,7 +9,12 @@ import type {
   StoryState,
 } from "../types";
 
+// Legacy global key — kept for one-time migration of pre-user-scoped caches.
 export const STORAGE_KEY = "nomad.story-state.v1";
+
+/** User-scoped storage key — prevents one account's cache from shadowing another's state. */
+export const getUserScopedStorageKey = (userId: string) =>
+  `nomad.story-state.${userId}.v1`;
 export const STORY_STATE_VERSION = 1;
 export const CONTENT_VERSION = "v1";
 
@@ -118,20 +123,32 @@ export const normalizeState = (
 };
 
 /**
- * Read local storage state if present.
+ * Read local storage state for a specific user.
+ * Falls back to the legacy global key (one-time migration) if no user-scoped entry exists.
  * Returns null if not available or parse fails.
  */
-export const readLocalStateIfPresent = (): StoryState | null => {
+export const readLocalStateIfPresent = (userId?: string): StoryState | null => {
   if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
     return null;
   }
 
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return null;
+  const tryParse = (raw: string | null): StoryState | null => {
+    if (!raw) return null;
+    try {
+      return normalizeState(JSON.parse(raw) as Partial<StoryState>);
+    } catch {
+      return null;
+    }
+  };
 
-  try {
-    return normalizeState(JSON.parse(raw) as Partial<StoryState>);
-  } catch {
+  if (userId) {
+    const scoped = tryParse(window.localStorage.getItem(getUserScopedStorageKey(userId)));
+    if (scoped) return scoped;
+    // No user-scoped cache yet — do NOT fall back to the global key.
+    // Falling back would let a previous user's choice leak into a new account.
     return null;
   }
+
+  // Pre-auth read (rare) — use legacy key.
+  return tryParse(window.localStorage.getItem(STORAGE_KEY));
 };

@@ -1,9 +1,9 @@
 import { supabase } from "../../../lib/supabase";
 import {
   CONTENT_VERSION,
-  STORAGE_KEY,
   STORY_STATE_VERSION,
   getDefaultState,
+  getUserScopedStorageKey,
   normalizeState,
   now,
   readLocalStateIfPresent,
@@ -121,8 +121,8 @@ class SupabaseStoryService implements StoryService {
       console.warn("[supabase-story] Fetch error:", err);
     }
 
-    // 3. Read local state for migration
-    const localState = readLocalStateIfPresent();
+    // 3. Read local state for migration (scoped to this user only)
+    const localState = readLocalStateIfPresent(this.userId);
 
     // 4. Choose newest
     const chosenState =
@@ -337,8 +337,12 @@ class SupabaseStoryService implements StoryService {
   }
 
   private persistToLocal(): void {
+    if (!this.userId) return;
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      window.localStorage.setItem(
+        getUserScopedStorageKey(this.userId),
+        JSON.stringify(this.state)
+      );
     } catch {
       // localStorage full or unavailable — acceptable
     }

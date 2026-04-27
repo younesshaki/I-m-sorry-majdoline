@@ -23,6 +23,7 @@ import {
   subscribeToSorryVideoPreload,
   type VideoPreloadSnapshot,
 } from "./scenes/sorry/videoPreloadCache";
+import type { SorryVideoQuality } from "./scenes/sorry/data/sceneAssets";
 import { ScrollIndicator } from "./scenes/shared/ScrollIndicator";
 import { SorryChapterProgress } from "./ui/SorryChapterProgress";
 import { ButterflySwarm } from "./ui/ButterflySwarm";
@@ -45,12 +46,16 @@ type ExperienceProps = {
   initialPartIndex?: number;
   initialChapterIndex?: number;
   onGoHome?: () => void;
+  onSorryChapterRevealChange?: (revealed: boolean) => void;
+  mediaQuality?: SorryVideoQuality;
 };
 
 export default function Experience({
   initialPartIndex: propPartIndex,
   initialChapterIndex: propChapterIndex,
   onGoHome,
+  onSorryChapterRevealChange,
+  mediaQuality = "high",
 }: ExperienceProps = {}) {
   const devToolsEnabled = import.meta.env.DEV;
   const [debugEnabled, setDebugEnabled] = useState(false);
@@ -150,6 +155,7 @@ export default function Experience({
     status: "idle",
     progress: 0,
     error: null,
+    quality: mediaQuality,
   });
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
   const transitionRef = useRef<gsap.core.Timeline | null>(null);
@@ -195,6 +201,11 @@ export default function Experience({
   const scenesHidden = shouldShowLoader || preloaderVisible || fade > 0.01;
   const cameraEnabled = !preloaderVisible && !shouldShowLoader;
 
+  useEffect(() => {
+    onSorryChapterRevealChange?.(isSorryChapter && !preloaderVisible);
+    return () => onSorryChapterRevealChange?.(false);
+  }, [isSorryChapter, onSorryChapterRevealChange, preloaderVisible]);
+
   // Reset canHideLoader when chapter changes
   useEffect(() => {
     if (showLoader) {
@@ -212,23 +223,23 @@ export default function Experience({
   }, [visibleChapterIndex]);
 
   useEffect(() => {
-    return subscribeToSorryVideoPreload(setSorryVideoPreload);
-  }, []);
+    return subscribeToSorryVideoPreload(mediaQuality, setSorryVideoPreload);
+  }, [mediaQuality]);
 
   useEffect(() => {
     if (!isSorryChapter || initialRevealReady) return;
-    void preloadSorryBackgroundVideos();
-  }, [initialRevealReady, isSorryChapter]);
+    void preloadSorryBackgroundVideos(mediaQuality);
+  }, [initialRevealReady, isSorryChapter, mediaQuality]);
 
   useEffect(() => {
     if (!isSorryChapter || sorryVideoPreload.status !== "error" || initialRevealReady) return;
 
     const retry = window.setTimeout(() => {
-      void preloadSorryBackgroundVideos();
+      void preloadSorryBackgroundVideos(mediaQuality);
     }, 3000);
 
     return () => window.clearTimeout(retry);
-  }, [initialRevealReady, isSorryChapter, sorryVideoPreload.status]);
+  }, [initialRevealReady, isSorryChapter, mediaQuality, sorryVideoPreload.status]);
 
   useEffect(() => {
     if (!storyReady) {
@@ -413,9 +424,11 @@ export default function Experience({
       <div style={{ position: "relative", width: "100%", height: "100%" }}>
         {isSorryChapter ? (
           <SorryBackgroundVideo
+            key={mediaQuality}
             isVisible={!preloaderVisible}
             activeSceneIndex={sorrySceneIndex}
             shouldPlay={!preloaderVisible}
+            quality={mediaQuality}
           />
         ) : null}
         {isSorryChapter ? <SorryLyricsDisplay activeSceneIndex={sorrySceneIndex} isActive={isSorryChapter} /> : null}

@@ -12,6 +12,7 @@ import { Scene12 } from "./Scene12";
 import { NoEndingScene } from "./NoEndingScene";
 import { useStory } from "../../story/StoryProvider";
 import type { StoryAnalytics } from "../../story/types";
+import { logStoryEvent } from "../../../lib/eventsService";
 
 type SorryPhase = "cinematic" | "forgiveness" | "scene12" | "ending";
 
@@ -173,6 +174,15 @@ export default function SorryChapter({
       responseTimeMs,
       selectedAt: new Date(nowMs).toISOString(),
     });
+    void logStoryEvent({
+      type: "choice_made",
+      sceneId: finalChoiceSceneId,
+      choiceId: "yes",
+      payload: {
+        responseTimeMs,
+        selectedAt: new Date(nowMs).toISOString(),
+      },
+    });
     setPhase("scene12");
   }, [finalChoiceSceneId, recordChoice, setAnalytics, storyState.analytics]);
 
@@ -191,14 +201,31 @@ export default function SorryChapter({
       responseTimeMs,
       selectedAt: new Date(nowMs).toISOString(),
     });
+    void logStoryEvent({
+      type: "choice_made",
+      sceneId: finalChoiceSceneId,
+      choiceId: "no",
+      payload: {
+        responseTimeMs,
+        selectedAt: new Date(nowMs).toISOString(),
+      },
+    });
     setPhase("ending");
   }, [finalChoiceSceneId, recordChoice, setAnalytics, storyState.analytics]);
 
   const handleScene12Complete = useCallback(() => {
+    void logStoryEvent({
+      type: "chapter_completed",
+      payload: { ending: "yes" },
+    });
     onGoHome?.();
   }, [onGoHome]);
 
   const handleEndingDone = useCallback(() => {
+    void logStoryEvent({
+      type: "chapter_completed",
+      payload: { ending: "no" },
+    });
     onGoHome?.();
   }, [onGoHome]);
 

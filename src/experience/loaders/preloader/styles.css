@@ -188,6 +188,7 @@
   position: fixed;
   inset: 0;
   background: #000000;
+  font-family: "Mileast", var(--experience-font-family);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,6 +220,7 @@
 .preloadGateButton {
   position: relative;
   z-index: 3;
+  font-family: "Mileast", var(--experience-font-family);
   width: 92px;
   height: 92px;
   border-radius: 50%;
@@ -387,6 +389,7 @@
 .pgAuth {
   position: relative;
   z-index: 2;
+  font-family: "Mileast", var(--experience-font-family);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -468,12 +471,14 @@
 }
 
 .pgAuth__vanishInputField {
+  font-family: "Mileast", var(--experience-font-family);
   color: #ffffff;
   font-size: clamp(1rem, 2.2vw, 1.14rem);
   letter-spacing: 0.02em;
 }
 
 .pgAuth__vanishPlaceholder {
+  font-family: "Mileast", var(--experience-font-family);
   color: rgba(255, 255, 255, 0.33);
   font-size: clamp(0.92rem, 2vw, 1.05rem);
 }
@@ -497,6 +502,7 @@
 
 .pgAuth__submit {
   margin-top: 0.25rem;
+  font-family: "Mileast", var(--experience-font-family);
   width: 100%;
   padding: 0.9rem 1.6rem;
   border: 1px solid rgba(255, 255, 255, 0.22);

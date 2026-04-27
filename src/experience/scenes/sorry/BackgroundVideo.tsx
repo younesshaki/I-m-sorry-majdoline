@@ -1,14 +1,16 @@
 import { useEffect, useRef } from "react";
-import { sorrySceneAssets } from "./data/sceneAssets";
+import {
+  sorrySceneAssets,
+  type SorryVideoQuality,
+} from "./data/sceneAssets";
 import { getSorryVideoSource } from "./videoPreloadCache";
 
 type BackgroundVideoProps = {
   isVisible?: boolean;
   activeSceneIndex?: number;
   shouldPlay?: boolean;
+  quality?: SorryVideoQuality;
 };
-
-const VIDEOS = sorrySceneAssets.video.blenderScenes;
 
 // Which video index to show per scene (0-indexed, 10 scenes total)
 // video 0 → scenes 0-1  video 1 → scenes 2-3  video 2 → scenes 4-6
@@ -32,12 +34,14 @@ const BLUR_DURATION_MS = 380;
 const BLUR_PEAK_PX = 14;
 const INTRO_VIDEO_FADE_MS = 5200;
 
-const videoSource = (index: number) => getSorryVideoSource(VIDEOS[index]);
+const videoSource = (quality: SorryVideoQuality, index: number) =>
+  getSorryVideoSource(sorrySceneAssets.video.blenderScenes[quality][index]);
 
 export function BackgroundVideo({
   isVisible = true,
   activeSceneIndex = 0,
   shouldPlay = true,
+  quality = "high",
 }: BackgroundVideoProps) {
   // Two video elements; we alternate which one is "active" (opacity 1)
   const videoARef = useRef<HTMLVideoElement | null>(null);
@@ -107,9 +111,9 @@ export function BackgroundVideo({
     if (nextVideoIdx === curVideoIdx || nextVideoIdx === preloadedIndexRef.current) return;
 
     preloadedIndexRef.current = nextVideoIdx;
-    pv.src = videoSource(nextVideoIdx);
+    pv.src = videoSource(quality, nextVideoIdx);
     pv.load();
-  }, [activeSceneIndex]);
+  }, [activeSceneIndex, quality]);
 
   // ── Initial load ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -121,7 +125,7 @@ export function BackgroundVideo({
     front.style.opacity = "0";
     back.style.opacity  = "0";
 
-    front.src = videoSource(0);
+    front.src = videoSource(quality, 0);
     front.currentTime = 0;
     currentVideoIndexRef.current = 0;
     if (shouldPlayRef.current) {
@@ -129,7 +133,7 @@ export function BackgroundVideo({
     } else {
       front.load();
     }
-  }, []);
+  }, [quality]);
 
   // ── timeupdate — enforce pause points ────────────────────────────────────
   useEffect(() => {
@@ -201,7 +205,7 @@ export function BackgroundVideo({
     front.style.filter     = `blur(${BLUR_PEAK_PX}px)`;
 
     // Load the new video into the back buffer while the blur peaks
-    back.src = videoSource(nextVideoIndex);
+    back.src = videoSource(quality, nextVideoIndex);
     back.style.opacity    = "0";
     back.style.filter     = "blur(0px)";
     back.style.transition = "none";
@@ -259,7 +263,7 @@ export function BackgroundVideo({
       window.clearTimeout(fallback);
       back.removeEventListener("canplay", onCanPlay);
     };
-  }, [activeSceneIndex]);
+  }, [activeSceneIndex, quality]);
 
   return (
     <div

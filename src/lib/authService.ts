@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { logStoryEvent } from "./eventsService";
 
 export type AuthUser = {
   userId: string;
@@ -70,6 +71,12 @@ export async function loginOrRegister(
         .eq("id", signInData.user!.id)
         .then(() => {});
 
+      void logStoryEvent({
+        type: "session_started",
+        username,
+        payload: { isNew: false },
+      });
+
       return {
         success: true,
         user: { userId: signInData.user!.id, username },
@@ -86,15 +93,23 @@ export async function loginOrRegister(
       return { success: false, error: "network_error" };
     }
 
-    // Check if username already exists
-    const { data: existingProfile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", username)
-      .maybeSingle();
+    // Check if the username already exists, via a SECURITY DEFINER RPC that bypasses
+    // the profiles RLS policy (which would otherwise hide it from anon callers).
+    // This is the critical fix: previously, anon couldn't see existing profiles,
+    // so the code thought every existing username was new and tried to signUp,
+    // which returned an obfuscated fake user → profile insert failed with 23505 →
+    // "username_taken" — making it impossible for existing users to log back in.
+    const { data: usernameTaken, error: rpcError } = await supabase.rpc(
+      "username_exists",
+      { p_username: username }
+    );
 
-    if (existingProfile) {
-      // Username is taken and password was wrong
+    if (rpcError) {
+      return { success: false, error: "network_error" };
+    }
+
+    if (usernameTaken === true) {
+      // Username belongs to an existing account but the password didn't match
       return { success: false, error: "wrong_password" };
     }
 
@@ -118,6 +133,17 @@ export async function loginOrRegister(
       }
       return { success: false, error: "network_error" };
     }
+
+    void logStoryEvent({
+      type: "registered",
+      username,
+      payload: { isNew: true },
+    });
+    void logStoryEvent({
+      type: "session_started",
+      username,
+      payload: { isNew: true },
+    });
 
     return {
       success: true,

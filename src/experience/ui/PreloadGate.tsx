@@ -23,7 +23,9 @@ const ERROR_MESSAGES: Record<string, string> = {
 };
 
 const USERNAME_PLACEHOLDERS = ["choose a name"];
-const BIRTHDAY_PASSWORD = "144";
+// Both "144" and "143" are accepted — Dounia wrote 143 or 144 letters
+// on his birthday, the numbers that mean "I love you".
+const BIRTHDAY_PASSWORDS = ["144", "143"];
 const BABY_YODA_PASSWORD = "woozi";
 const PASSWORD_PLACEHOLDERS: Record<PasswordStep, string[]> = {
   birthday: ["how many letters are in the birthday jar?"],
@@ -92,7 +94,7 @@ export default function PreloadGate({ onStart }: PreloadGateProps) {
     const normalizedPassword = password.trim().toLowerCase();
 
     if (passwordStep === "birthday") {
-      if (normalizedPassword !== BIRTHDAY_PASSWORD) {
+      if (!BIRTHDAY_PASSWORDS.includes(normalizedPassword)) {
         setErrorKey("wrong_password");
         return;
       }

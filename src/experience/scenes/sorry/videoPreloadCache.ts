@@ -1,141 +1,263 @@
-import { sorrySceneAssets } from "./data/sceneAssets";
+import {
+  sorrySceneAssets,
+  type SorryVideoQuality,
+} from "./data/sceneAssets";
 
 export type VideoPreloadStatus = "idle" | "loading" | "ready" | "error";
 
 export type VideoPreloadSnapshot = {
   status: VideoPreloadStatus;
-  /** 0–100, based on real bytes downloaded for the two required videos */
+  /** 0-100. High quality uses byte progress; normal quality uses stream warmup readiness. */
   progress: number;
   error: string | null;
+  quality: SorryVideoQuality;
 };
 
-const allVideos = sorrySceneAssets.video.blenderScenes;
+const videosByQuality = sorrySceneAssets.video.blenderScenes;
+const REQUIRED_VIDEO_COUNT = 2;
+const NORMAL_WARMUP_TIMEOUT_MS = 5200;
 
-// blenderscene1 (~50 MB) + blenderscene2 (~21 MB) must be fully in memory before the chapter opens.
-// The remaining three download silently in the background while she watches the first scenes.
-const REQUIRED = allVideos.slice(0, 2);
-const BACKGROUND = allVideos.slice(2);
-
-// Approximate sizes for progress estimation before real Content-Length arrives.
 const APPROX_SIZES: Record<string, number> = {
-  [allVideos[0]]: 52_000_000, // blenderscene1 ~50 MB
-  [allVideos[1]]: 22_200_000, // blenderscene2 ~21 MB
+  [videosByQuality.high[0]]: 52_111_987,
+  [videosByQuality.high[1]]: 22_258_666,
+  [videosByQuality.normal[0]]: 13_958_768,
+  [videosByQuality.normal[1]]: 5_218_970,
 };
 
 const blobUrls = new Map<string, string>();
-const subscribers = new Set<(s: VideoPreloadSnapshot) => void>();
+const warmupVideos = new Map<string, HTMLVideoElement>();
 
-let status: VideoPreloadStatus = "idle";
-let progress = 0;
-let error: string | null = null;
-let activePromise: Promise<void> | null = null;
+const snapshots: Record<SorryVideoQuality, Omit<VideoPreloadSnapshot, "quality">> = {
+  high: { status: "idle", progress: 0, error: null },
+  normal: { status: "idle", progress: 0, error: null },
+};
 
-function snap(): VideoPreloadSnapshot {
-  return { status, progress, error };
+const activePromises: Partial<Record<SorryVideoQuality, Promise<void>>> = {};
+const subscribers: Record<
+  SorryVideoQuality,
+  Set<(s: VideoPreloadSnapshot) => void>
+> = {
+  high: new Set(),
+  normal: new Set(),
+};
+
+function snap(quality: SorryVideoQuality): VideoPreloadSnapshot {
+  return { ...snapshots[quality], quality };
 }
 
-function notify() {
-  const s = snap();
-  subscribers.forEach((fn) => fn(s));
+function setSnapshot(
+  quality: SorryVideoQuality,
+  next: Partial<Omit<VideoPreloadSnapshot, "quality">>
+) {
+  snapshots[quality] = {
+    ...snapshots[quality],
+    ...next,
+  };
+  notify(quality);
 }
 
-// Fetch one video as a blob, streaming so we can report byte progress.
-// Falls back gracefully — if anything fails, blobUrls stays empty for that URL
-// and getSorryVideoSource returns the original CDN URL instead.
+function notify(quality: SorryVideoQuality) {
+  const s = snap(quality);
+  subscribers[quality].forEach((fn) => fn(s));
+}
+
 async function fetchBlob(
   url: string,
   onBytes?: (loaded: number, total: number) => void
 ): Promise<void> {
   if (blobUrls.has(url)) return;
 
-  try {
-    const res = await fetch(url, { mode: "cors" });
-    if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+  const res = await fetch(url, { mode: "cors" });
+  if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
 
-    const contentLength = Number(res.headers.get("content-length") ?? 0);
-    const total = contentLength || (APPROX_SIZES[url] ?? 30_000_000);
+  const contentLength = Number(res.headers.get("content-length") ?? 0);
+  const total = contentLength || (APPROX_SIZES[url] ?? 30_000_000);
 
-    // Refine our approximation with the real header
-    if (contentLength && APPROX_SIZES[url] !== contentLength) {
-      APPROX_SIZES[url] = contentLength;
-    }
-
-    const reader = res.body.getReader();
-    const chunks: Uint8Array<ArrayBuffer>[] = [];
-    let loaded = 0;
-
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      loaded += value.length;
-      onBytes?.(loaded, total);
-    }
-
-    const blob = new Blob(chunks, { type: "video/mp4" });
-    blobUrls.set(url, URL.createObjectURL(blob));
-  } catch {
-    // Non-fatal: leave blobUrls empty so getSorryVideoSource falls back to CDN URL.
+  if (contentLength && APPROX_SIZES[url] !== contentLength) {
+    APPROX_SIZES[url] = contentLength;
   }
+
+  const reader = res.body.getReader();
+  const chunks: Uint8Array<ArrayBuffer>[] = [];
+  let loaded = 0;
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    chunks.push(value);
+    loaded += value.length;
+    onBytes?.(loaded, total);
+  }
+
+  const blob = new Blob(chunks, { type: "video/mp4" });
+  blobUrls.set(url, URL.createObjectURL(blob));
 }
 
-async function run(): Promise<void> {
-  // Phase 1 — required: blocks the preloader gate
-  const totalApprox = REQUIRED.reduce((n, u) => n + (APPROX_SIZES[u] ?? 30_000_000), 0);
-  const perLoaded = new Map<string, number>(REQUIRED.map((u) => [u, 0]));
+function warmStreamingVideo(
+  url: string,
+  onProgress?: (value: number) => void
+): Promise<void> {
+  if (typeof document === "undefined") return Promise.resolve();
+
+  let video = warmupVideos.get(url);
+  if (!video) {
+    video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "auto";
+    warmupVideos.set(url, video);
+  }
+
+  return new Promise((resolve) => {
+    let finished = false;
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      onProgress?.(100);
+      resolve();
+    };
+
+    const update = (value: number) => {
+      if (!finished) onProgress?.(value);
+    };
+
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      video.removeEventListener("loadstart", onLoadStart);
+      video.removeEventListener("loadedmetadata", onLoadedMetadata);
+      video.removeEventListener("loadeddata", onLoadedData);
+      video.removeEventListener("canplay", finish);
+      video.removeEventListener("error", finish);
+    };
+
+    const onLoadStart = () => update(18);
+    const onLoadedMetadata = () => update(38);
+    const onLoadedData = () => update(72);
+
+    const timeout = window.setTimeout(finish, NORMAL_WARMUP_TIMEOUT_MS);
+
+    video.addEventListener("loadstart", onLoadStart);
+    video.addEventListener("loadedmetadata", onLoadedMetadata);
+    video.addEventListener("loadeddata", onLoadedData);
+    video.addEventListener("canplay", finish);
+    video.addEventListener("error", finish);
+
+    if (video.src !== url) {
+      video.src = url;
+    }
+
+    if (video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+      finish();
+      return;
+    }
+
+    video.load();
+  });
+}
+
+async function runHighQuality(): Promise<void> {
+  const required = videosByQuality.high.slice(0, REQUIRED_VIDEO_COUNT);
+  const totalApprox = required.reduce(
+    (n, u) => n + (APPROX_SIZES[u] ?? 30_000_000),
+    0
+  );
+  const perLoaded = new Map<string, number>(required.map((u) => [u, 0]));
 
   const onBytes = (url: string, loaded: number) => {
     perLoaded.set(url, loaded);
     const sum = Array.from(perLoaded.values()).reduce((a, b) => a + b, 0);
-    progress = Math.min(99, Math.round((sum / totalApprox) * 100));
-    notify();
+    setSnapshot("high", {
+      progress: Math.min(99, Math.round((sum / totalApprox) * 100)),
+    });
   };
 
   await Promise.all(
-    REQUIRED.map((url) => fetchBlob(url, (loaded) => onBytes(url, loaded)))
+    required.map((url) =>
+      fetchBlob(url, (loaded) => onBytes(url, loaded)).catch(() => {
+        // Non-fatal: if a blob fetch fails, playback falls back to the CDN URL.
+      })
+    )
+  );
+}
+
+async function runNormalQuality(): Promise<void> {
+  const required = videosByQuality.normal.slice(0, REQUIRED_VIDEO_COUNT);
+  const perVideo = new Map<string, number>(required.map((u) => [u, 0]));
+
+  const onProgress = (url: string, value: number) => {
+    perVideo.set(url, value);
+    const sum = Array.from(perVideo.values()).reduce((a, b) => a + b, 0);
+    setSnapshot("normal", {
+      progress: Math.min(99, Math.round(sum / required.length)),
+    });
+  };
+
+  await Promise.all(
+    required.map((url) => warmStreamingVideo(url, (value) => onProgress(url, value)))
   );
 
-  progress = 100;
-  status = "ready";
-  notify();
-
-  // Phase 2 — background: non-blocking, no progress updates
-  void Promise.allSettled(BACKGROUND.map((url) => fetchBlob(url)));
+  // Keep the compressed path light: after the first two are warmed, hint the rest
+  // without blocking the chapter entrance or storing large blobs in memory.
+  void Promise.allSettled(
+    videosByQuality.normal
+      .slice(REQUIRED_VIDEO_COUNT)
+      .map((url) => warmStreamingVideo(url))
+  );
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+async function run(quality: SorryVideoQuality): Promise<void> {
+  if (quality === "high") {
+    await runHighQuality();
+    return;
+  }
+
+  await runNormalQuality();
+}
 
 export function subscribeToSorryVideoPreload(
+  quality: SorryVideoQuality,
   fn: (s: VideoPreloadSnapshot) => void
 ): () => void {
-  subscribers.add(fn);
-  fn(snap());
-  return () => subscribers.delete(fn);
+  subscribers[quality].add(fn);
+  fn(snap(quality));
+  return () => subscribers[quality].delete(fn);
 }
 
-export function preloadSorryBackgroundVideos(): Promise<void> {
-  if (status === "ready") return Promise.resolve();
-  if (activePromise) return activePromise;
+export function preloadSorryBackgroundVideos(
+  quality: SorryVideoQuality
+): Promise<void> {
+  if (snapshots[quality].status === "ready") return Promise.resolve();
+  if (activePromises[quality]) return activePromises[quality] as Promise<void>;
 
-  status = "loading";
-  error = null;
-  progress = 0;
-  notify();
+  setSnapshot(quality, {
+    status: "loading",
+    error: null,
+    progress: 0,
+  });
 
-  activePromise = run()
+  activePromises[quality] = run(quality)
+    .then(() => {
+      setSnapshot(quality, {
+        status: "ready",
+        progress: 100,
+        error: null,
+      });
+    })
     .catch((err: unknown) => {
-      status = "error";
-      error = err instanceof Error ? err.message : "Could not load videos";
-      notify();
+      setSnapshot(quality, {
+        status: "error",
+        error: err instanceof Error ? err.message : "Could not load videos",
+      });
     })
     .finally(() => {
-      activePromise = null;
+      activePromises[quality] = undefined;
     });
 
-  return activePromise;
+  return activePromises[quality] as Promise<void>;
 }
 
-/** Returns the in-memory blob URL if pre-fetched, otherwise the original CDN URL. */
 export function getSorryVideoSource(url: string): string {
   return blobUrls.get(url) ?? url;
 }
