@@ -15,7 +15,7 @@ const sorryAdvanceGate = {
 };
 
 // Breathing room before any text appears: video plays in silence first.
-const CHAPTER_START_DELAY_MS = 2500;
+const CHAPTER_START_DELAY_MS = 5000;
 
 export function useSorryTimeline({
   overlayRef,

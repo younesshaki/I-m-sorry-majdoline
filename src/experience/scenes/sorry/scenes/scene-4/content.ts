@@ -13,7 +13,7 @@ export const scene4: NarrativeScene = {
     { text: "It is how I treat you." },
     { text: "I have failed.", highlights: ["I", "have", "failed"], },
     { text: "I said those words to the person I love most." },
-    { text: "In that moment, I did not treat you with the care you deserved." },
+    { text: "I did not treat you with the care you deserved." },
     { text: "I hate that I let anger speak where love should have been." },
   ],
 };

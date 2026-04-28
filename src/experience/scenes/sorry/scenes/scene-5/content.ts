@@ -11,10 +11,10 @@ export const scene5: NarrativeScene = {
     { text: "I broke your heart." },
     { text: "Even if you did not show the pain right away, I know it was there.", blankBeforeMs: 5000 },
     { text: "I remember your painting and what It meant." },
-    { text: "Like a whole sky pressed behind a closed Door." },
+    { text: "Like a whole sky of thoughts pressed behind a closed Door." },
     { text: "So much pain looking for a way out." },
     { text: "You deserved patience before frustration." },
-    { text: "You deserved softness before defense." },
+    { text: "You deserved to be heard." },
     { text: "I am sorry I made love feel heavy when it should have felt safe." },
   ],
 };
