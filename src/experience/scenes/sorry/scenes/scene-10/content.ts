@@ -18,6 +18,6 @@ export const scene10: NarrativeScene = {
     { text: "You brought life into places I did not know were empty." },
     { text: "I pray life becomes gentler with you." },
     { text: "I pray you get peace without having to fight for it." },
-    { text: "And I pray I never forget what your patience deserved from me." },
+    { text: "An angel like you deserves happiness." },
   ],
 };

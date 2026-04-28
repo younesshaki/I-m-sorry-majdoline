@@ -5,7 +5,7 @@ import { BirdSvg } from "../shared/BirdSvg";
 import type { LoaderComponentProps } from "../shared/types";
 import "./styles.css";
 
-const LOADING_LABELS = ["loading alhajja", "mab9a 9dma fat", "sbran jamilan"];
+const LOADING_LABELS = ["use your headphones alhajja", "loading alhajja", "mab9a 9dma fat", "sbran jamilan"];
 const LABEL_INTERVAL_MS = 5000;
 
 export function Loader({ className, text }: LoaderComponentProps) {
@@ -56,7 +56,10 @@ export function Loader({ className, text }: LoaderComponentProps) {
     <div className="loading-progress-block">
       <span className="loading-progress-number">{pct}</span>
       <span className="loading-progress-symbol">%</span>
-      <span className="loading-progress-label">
+      <span
+        className="loading-progress-label"
+        style={!isReady && labelIndex === 0 ? { color: "#ffffff" } : undefined}
+      >
         {isReady ? "ready" : LOADING_LABELS[labelIndex]}
       </span>
     </div>

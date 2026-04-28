@@ -1,5 +1,6 @@
 import "./App.scss";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { OutsideSorryMusic } from "./experience/audio/OutsideSorryMusic";
 import { UiSoundProvider } from "./experience/audio/UiSoundProvider";
 import Experience from "./experience/Experience";
@@ -13,6 +14,33 @@ import { MediaQualitySettings } from "./experience/ui/MediaQualitySettings";
 import type { SorryVideoQuality } from "./experience/scenes/sorry/data/sceneAssets";
 
 type AppScreen = "gate" | "home" | "titlecard" | "experience" | "admin";
+
+function HeadphonesIcon() {
+  const [host, setHost] = useState<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const div = document.createElement("div");
+    div.style.cssText = "position:fixed;bottom:1.5rem;right:1.5rem;z-index:900;pointer-events:none;";
+    document.body.appendChild(div);
+    setHost(div);
+    return () => { div.remove(); };
+  }, []);
+
+  if (!host) return null;
+
+  return createPortal(
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="44"
+      height="44"
+      fill="#ffffff"
+    >
+      <path d="m12,3C6.49,3,2,7.49,2,13v6c0,.55.45,1,1,1h3c.55,0,1-.45,1-1v-5c0-.55-.45-1-1-1h-2c0-4.41,3.59-8,8-8s8,3.59,8,8h-2c-.55,0-1,.45-1,1v5c0,.55.45,1,1,1h3c.55,0,1-.45,1-1v-6c0-5.51-4.49-10-10-10Z"/>
+    </svg>,
+    host
+  );
+}
 
 const SORRY_ENTRY = {
   partIndex: 6,
@@ -98,6 +126,7 @@ export default function App() {
           onQualityChange={handleMediaQualityChange}
         />
         <OutsideSorryMusic enabled={!(isSorryExperience && sorryChapterRevealed)} />
+        {!(isSorryExperience && sorryChapterRevealed) && <HeadphonesIcon />}
         {screen === "admin" ? (
           <AdminPage onExit={handleGoHome} />
         ) : screen === "gate" ? (
