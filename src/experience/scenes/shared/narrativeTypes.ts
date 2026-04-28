@@ -11,6 +11,8 @@ export type NarrativeLine = {
     startDelayMs?: number;
     finalHoldMs?: number;
   };
+  /** Blank screen time before this line appears, used for syncing text to visual beats. */
+  blankBeforeMs?: number;
   /** Seconds into the VO when this line should appear. If omitted, uses auto-calculated timing. */
   startTime?: number;
   /** Seconds into the VO when this line should disappear. If omitted, stays until scene ends. */

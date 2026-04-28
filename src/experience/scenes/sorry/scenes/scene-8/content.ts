@@ -8,11 +8,17 @@ export const scene8: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "Life was already asking too much of you." },
-    { text: "And I became another weight, when I should have been shelter." },
-    { text: "You keep moving because stopping would mean feeling it all at once." },
-    { text: "I know that about you." },
-    { text: "I know you carry things quietly, without complaint." },
-    { text: "And I did not want to add to that weight any more than I already had." },
+    { text: "Life was already asking a lot from you." },
+    { text: "And I added heaviness when I should have brought peace." },
+    { text: "another one of those 100 punches" },
+    { text: "I know you keep going even when you are tired." },
+    { text: "I know you do not always show how much it takes from you." },
+    { text: "I know you carry things quietly", flipWords: {
+        target: "quietly",
+        words: ["quietly", "without complaint",],
+        intervalMs: 1500,
+        finalHoldMs: 1500,
+      }, },
+    { text: "I am sorry I became one more thing you had to survive." },
   ],
 };

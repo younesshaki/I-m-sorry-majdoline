@@ -10,13 +10,14 @@ export const scene10: NarrativeScene = {
   lines: [
     { text: "I miss you more than life.", flipWords: {
         target: "miss",
-        words: ["miss", "love", "care about", "respect"],
+        words: ["miss", "love", "respect"],
         intervalMs: 1500,
         finalHoldMs: 1500,
       }, },
-    { text: "I pray you get the ease, the peace, the happiness and safety you deserve." },
-    { text: "I pray that you don't suffer anymore." },
-    { text: "That life becomes easy for you." },
-    { text: "That your soul and mind finally get the chance to rest." },
+    { text: "The way you made ordinary days feel full." },
+    { text: "You brought life into places I did not know were empty." },
+    { text: "I pray life becomes gentler with you." },
+    { text: "I pray you get peace without having to fight for it." },
+    { text: "And I pray I never forget what your patience deserved from me." },
   ],
 };

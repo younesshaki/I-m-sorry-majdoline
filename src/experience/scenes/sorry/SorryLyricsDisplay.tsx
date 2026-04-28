@@ -149,7 +149,8 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
         return;
       }
 
-      animateLineIn(lines[index], () => {
+      const line = lines[index];
+      const startLine = () => animateLineIn(line, () => {
         const hold = holdDuration(lines[index]);
 
         after(() => {
@@ -158,6 +159,12 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
           });
         }, hold);
       });
+
+      if (line.blankBeforeMs && line.blankBeforeMs > 0) {
+        after(startLine, line.blankBeforeMs);
+      } else {
+        startLine();
+      }
     },
     [animateLineIn, animateLineOut, after]
   );

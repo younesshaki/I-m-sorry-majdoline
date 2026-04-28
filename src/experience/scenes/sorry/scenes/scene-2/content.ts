@@ -8,11 +8,9 @@ export const scene2: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "The words I said kept moving long after the moment ended." },
-    { text: "I could still hear them when everything went quiet." },
-    { text: "Some sentences do not end when the mouth closes." },
-    { text: "They stay in the air and then settle somewhere inside." },
-    { text: "That is what makes them heavier than noise and harder than anger." },
-    { text: "I know mine did not disappear just because the silence came after." },
+    { text: "I let anger reach the person I should have protected most." },
+    { text: "You did not deserve to hear that from anyone." },
+    { text: "Especially not from me." },
+    { text: "I understand why silence came after." },
   ],
 };

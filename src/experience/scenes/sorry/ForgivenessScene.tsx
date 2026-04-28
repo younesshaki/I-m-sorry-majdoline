@@ -44,13 +44,16 @@ function ModelCarousel() {
   return (
     <div className="forgivenessCarousel">
       <div className="forgivenessCarouselTrack">
-        <button
-          className="forgivenessArrow forgivenessArrow--left"
+        <HoverBorderGradient
+          as="button"
+          type="button"
           onClick={prev}
           aria-label="Previous gift"
+          containerClassName="forgivenessChoiceButton forgivenessArrow"
+          className="forgivenessChoiceButton__inner"
         >
           ‹
-        </button>
+        </HoverBorderGradient>
 
         <div className="forgivenessPancakePreview" aria-label={`3D model: ${model.label}`}>
           <Canvas
@@ -82,17 +85,20 @@ function ModelCarousel() {
           </Canvas>
         </div>
 
-        <button
-          className="forgivenessArrow forgivenessArrow--right"
+        <HoverBorderGradient
+          as="button"
+          type="button"
           onClick={next}
           aria-label="Next gift"
+          containerClassName="forgivenessChoiceButton forgivenessArrow"
+          className="forgivenessChoiceButton__inner"
         >
           ›
-        </button>
+        </HoverBorderGradient>
       </div>
 
       <p className="forgivenessRewardText">
-        see the rewards for forgiving this poor man
+        see the rewards for forgiving this sorry man
       </p>
     </div>
   );
@@ -113,6 +119,7 @@ function ForgivenessOverlay({ onYes, onNo }: ForgivenessSceneProps) {
         pointerEvents: "auto",
       }}
     >
+      {/* Centered question + buttons */}
       <div className="forgivenessStage">
         <div
           className="forgivenessCopy"
@@ -155,18 +162,21 @@ function ForgivenessOverlay({ onYes, onNo }: ForgivenessSceneProps) {
             </HoverBorderGradient>
           </div>
         </div>
-
-        <ModelCarousel />
-
-        <style>
-          {`
-            @keyframes forgivenessFadeIn {
-              from { opacity: 0; transform: translate3d(0, 20px, 0); }
-              to   { opacity: 1; transform: translate3d(0, 0, 0); }
-            }
-          `}
-        </style>
       </div>
+
+      {/* Corner carousel */}
+      <div className="forgivenessCarouselCorner">
+        <ModelCarousel />
+      </div>
+
+      <style>
+        {`
+          @keyframes forgivenessFadeIn {
+            from { opacity: 0; transform: translate3d(0, 20px, 0); }
+            to   { opacity: 1; transform: translate3d(0, 0, 0); }
+          }
+        `}
+      </style>
     </div>
   );
 }

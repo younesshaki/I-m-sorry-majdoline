@@ -13,7 +13,7 @@ export const scene11: NarrativeScene = {
       highlights: ["Majdoline"],
       flipWords: {
         target: "Majdoline",
-        words: ["Majdoline", "Dounia", "my blessing", "warrior"],
+        words: ["Majdoline", "Dounia", "Warrior", "My blessing"],
         intervalMs: 1500,
         finalHoldMs: 1500,
       },

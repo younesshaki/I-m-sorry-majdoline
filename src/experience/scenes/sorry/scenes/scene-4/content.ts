@@ -8,11 +8,12 @@ export const scene4: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "Deep down, my intention has always been to be nothing but caring." },
-    { text: "To show it with my words and with my actions." },
-    { text: "I have failed.", highlights: ["I have failed"] },
-    { text: "Anger always promises relief and leaves behind ash." },
-    { text: "It burns the wrong thing first." },
-    { text: "I hate that I let it speak to you." },
+    { text: "Good intentions do not erase what I did." },
+    { text: "Love is not only what I feel." },
+    { text: "It is how I treat you." },
+    { text: "I have failed.", highlights: ["I", "have", "failed"], },
+    { text: "I said those words to the person I love most." },
+    { text: "In that moment, I did not treat you with the care you deserved." },
+    { text: "I hate that I let anger speak where love should have been." },
   ],
 };

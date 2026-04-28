@@ -5,13 +5,24 @@ import { BirdSvg } from "../shared/BirdSvg";
 import type { LoaderComponentProps } from "../shared/types";
 import "./styles.css";
 
+const LOADING_LABELS = ["loading alhajja", "mab9a 9dma fat", "sbran jamilan"];
+const LABEL_INTERVAL_MS = 5000;
+
 export function Loader({ className, text }: LoaderComponentProps) {
   const { active, progress } = useProgress();
   const textProgress = Number(text.match(/(\d+)%/)?.[1]);
   const hasTextProgress = Number.isFinite(textProgress);
   const [displayed, setDisplayed] = useState(0);
+  const [labelIndex, setLabelIndex] = useState(0);
   const rafRef = useRef<number>(0);
   const currentRef = useRef(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setLabelIndex((i) => (i + 1) % LOADING_LABELS.length);
+    }, LABEL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, []);
 
   // Smoothly count up to the real progress value, always reaching 100 when done.
   useEffect(() => {
@@ -46,7 +57,7 @@ export function Loader({ className, text }: LoaderComponentProps) {
       <span className="loading-progress-number">{pct}</span>
       <span className="loading-progress-symbol">%</span>
       <span className="loading-progress-label">
-        {isReady ? "ready" : "loading"}
+        {isReady ? "ready" : LOADING_LABELS[labelIndex]}
       </span>
     </div>
   );

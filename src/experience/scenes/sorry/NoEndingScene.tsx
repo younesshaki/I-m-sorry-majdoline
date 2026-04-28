@@ -5,8 +5,8 @@ import "../shared/sceneFonts.css";
 
 export const NO_ENDING_LINES = [
   "I understand.",
-  "Thank you for being honest with me.",
-  "Take care of yourself.",
+  "Thank you for everything",
+  "I will respect your heart.",
 ];
 
 const NO_ENDING_FADE_OUT_DELAY_MS = 3600;
