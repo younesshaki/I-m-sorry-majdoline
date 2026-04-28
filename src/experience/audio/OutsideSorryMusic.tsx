@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { mediaUrl, toFallbackUrl } from "@/config/cdn";
 
-const OUTSIDE_SORRY_MUSIC_URL =
-  "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/audio/bts-fake-love-orchestral-slowed-reverb-v1.mp3";
+const OUTSIDE_SORRY_MUSIC_URL = mediaUrl(
+  "audio/bts-fake-love-orchestral-slowed-reverb-v1.mp3"
+);
 
 const TARGET_VOLUME = 0.2;
 const FADE_IN_S = 4.5;
@@ -25,6 +27,17 @@ export function OutsideSorryMusic({ enabled }: { enabled: boolean }) {
     audio.volume = 0;
     audio.crossOrigin = "anonymous";
     audioRef.current = audio;
+
+    audio.onerror = () => {
+      const fallback = toFallbackUrl(audio.src);
+      if (audio.src !== fallback) {
+        if (import.meta.env.DEV) {
+          console.warn("[CDN fallback] R2 audio failed → Supabase: OutsideSorryMusic");
+        }
+        audio.src = fallback;
+        void audio.play().catch(() => {});
+      }
+    };
 
     const tryPlay = () => {
       if (!enabledRef.current || !audioRef.current) return;

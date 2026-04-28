@@ -2,6 +2,7 @@ import {
   sorrySceneAssets,
   type SorryVideoQuality,
 } from "./data/sceneAssets";
+import { toFallbackUrl } from "@/config/cdn";
 
 export type VideoPreloadStatus = "idle" | "loading" | "ready" | "error";
 
@@ -67,8 +68,15 @@ async function fetchBlob(
 ): Promise<void> {
   if (blobUrls.has(url)) return;
 
-  const res = await fetch(url, { mode: "cors" });
-  if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+  let res = await fetch(url, { mode: "cors" }).catch(() => null);
+  if (!res || !res.ok || !res.body) {
+    const fallback = toFallbackUrl(url);
+    if (import.meta.env.DEV) {
+      console.warn(`[CDN fallback] R2 video fetch failed → Supabase: ${url}`);
+    }
+    res = await fetch(fallback, { mode: "cors" });
+    if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+  }
 
   const contentLength = Number(res.headers.get("content-length") ?? 0);
   const total = contentLength || (APPROX_SIZES[url] ?? 30_000_000);
@@ -129,7 +137,7 @@ function warmStreamingVideo(
       video.removeEventListener("loadedmetadata", onLoadedMetadata);
       video.removeEventListener("loadeddata", onLoadedData);
       video.removeEventListener("canplay", finish);
-      video.removeEventListener("error", finish);
+      video.removeEventListener("error", onError);
     };
 
     const onLoadStart = () => update(18);
@@ -138,11 +146,26 @@ function warmStreamingVideo(
 
     const timeout = window.setTimeout(finish, NORMAL_WARMUP_TIMEOUT_MS);
 
+    let triedFallback = false;
+    const onError = () => {
+      if (!triedFallback) {
+        triedFallback = true;
+        const fallback = toFallbackUrl(url);
+        if (import.meta.env.DEV) {
+          console.warn(`[CDN fallback] R2 stream failed → Supabase: ${url}`);
+        }
+        video.src = fallback;
+        video.load();
+        return;
+      }
+      finish();
+    };
+
     video.addEventListener("loadstart", onLoadStart);
     video.addEventListener("loadedmetadata", onLoadedMetadata);
     video.addEventListener("loadeddata", onLoadedData);
     video.addEventListener("canplay", finish);
-    video.addEventListener("error", finish);
+    video.addEventListener("error", onError);
 
     if (video.src !== url) {
       video.src = url;

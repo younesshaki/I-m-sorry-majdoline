@@ -4,7 +4,7 @@ import { useUiSounds } from "../audio/useUiSounds";
 import { checkExistingSession, loginOrRegister } from "../../lib/authService";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import "../loaders/preloader/styles.css";
-const preloadGateBackground = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorry-entry.png";
+import { useCdnImage } from "@/config/cdn";
 
 type Phase = "checking" | "auth" | "ready";
 type PasswordStep = "birthday" | "babyYoda";
@@ -33,6 +33,7 @@ const PASSWORD_PLACEHOLDERS: Record<PasswordStep, string[]> = {
 };
 
 export default function PreloadGate({ onStart }: PreloadGateProps) {
+  const preloadGateBackground = useCdnImage("sorry-entry.png");
   const { playGateClick, playHover } = useUiSounds();
   const startTimeoutRef = useRef<number | null>(null);
   const authRef = useRef<HTMLDivElement | null>(null);

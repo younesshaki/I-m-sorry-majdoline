@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { useCdnImage } from "@/config/cdn";
 import "./SorryTitleCard.css";
-
-const sorryTitleBackground = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorryentry2.png";
 
 type SorryTitleCardProps = {
   onPlay: () => void;
 };
 
 export default function SorryTitleCard({ onPlay }: SorryTitleCardProps) {
+  const sorryTitleBackground = useCdnImage("sorryentry2.png");
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [isLeaving, setIsLeaving] = useState(false);
 

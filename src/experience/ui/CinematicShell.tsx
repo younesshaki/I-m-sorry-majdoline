@@ -1,11 +1,12 @@
 import type { PropsWithChildren } from "react";
-const sharedBackgroundImage = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media/sorry-entry.png";
+import { useCdnImage } from "@/config/cdn";
 
 type CinematicShellProps = PropsWithChildren<{
   className?: string;
 }>;
 
 export default function CinematicShell({ children, className }: CinematicShellProps) {
+  const sharedBackgroundImage = useCdnImage("sorry-entry.png");
   return (
     <div
       className={`cinematicShell${className ? ` ${className}` : ""}`}
