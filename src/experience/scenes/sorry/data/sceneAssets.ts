@@ -1,4 +1,4 @@
-const CDN = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media";
+const CDN = "https://pub-3a8f85adfce6494097551ac5c045b121.r2.dev";
 
 export type SorryVideoQuality = "high" | "normal";
 

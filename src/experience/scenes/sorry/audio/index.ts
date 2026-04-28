@@ -1,4 +1,4 @@
-const CDN = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media";
+const CDN = "https://pub-3a8f85adfce6494097551ac5c045b121.r2.dev";
 
 export const sorryScene1To4MusicUrl: string | null = `${CDN}/audio/bts-black-swan-fake-love-orchestra-v1.mp3`;
 export const sorryScene5To8MusicUrl: string | null = `${CDN}/audio/coldplay-viva-la-vida-slowed-reverb-v1.mp3`;

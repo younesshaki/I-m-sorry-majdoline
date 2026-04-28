@@ -15,7 +15,7 @@ import {
   CardContainer,
   CardItem,
 } from "@/components/ui/3d-card";
-const CDN = "https://spheqdcagzndypxmqvuh.supabase.co/storage/v1/object/public/sorry-media";
+const CDN = "https://pub-3a8f85adfce6494097551ac5c045b121.r2.dev";
 const sorryOptionImage = `${CDN}/sorry-option.png`;
 const giftOptionImage  = `${CDN}/gift-option.png`;
 import "./StoryHomePage.css";
