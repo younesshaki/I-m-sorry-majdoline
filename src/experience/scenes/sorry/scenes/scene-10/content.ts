@@ -8,9 +8,9 @@ export const scene10: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "I will always care about the good you brought into my life.", flipWords: {
-        target: "care",
-        words: ["care", "value", "respect"],
+    { text: "I will always remember the good you brought into my life with respect.", flipWords: {
+        target: "respect",
+        words: ["respect", "gratitude", "care"],
         intervalMs: 1500,
         finalHoldMs: 1500,
       }, },

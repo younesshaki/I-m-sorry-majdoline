@@ -62,9 +62,6 @@ export default function SorryTitleCard({ onPlay }: SorryTitleCardProps) {
       <div className="sorryTitleCard__content">
         <p className="sorryTitleCard__eyebrow sorryTitleCard__fade">For Dounia</p>
         <h1 className="sorryTitleCard__title sorryTitleCard__fade">Sorry</h1>
-        <p className="sorryTitleCard__text sorryTitleCard__fade">
-          I need you to see what I failed to protect.
-        </p>
         <HoverBorderGradient
           as="button"
           type="button"
