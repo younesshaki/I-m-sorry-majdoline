@@ -8,9 +8,9 @@ export const scene10: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "I miss you more than life.", flipWords: {
-        target: "miss",
-        words: ["miss", "love", "respect"],
+    { text: "I will always care about the good you brought into my life.", flipWords: {
+        target: "care",
+        words: ["care", "value", "respect"],
         intervalMs: 1500,
         finalHoldMs: 1500,
       }, },

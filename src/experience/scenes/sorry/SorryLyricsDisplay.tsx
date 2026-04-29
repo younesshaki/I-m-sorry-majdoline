@@ -195,7 +195,14 @@ export function SorryLyricsDisplay({ activeSceneIndex, isActive }: Props) {
     }
 
     // -1 means the GSAP timeline hasn't confirmed the first scene yet — stay dormant
-    if (activeSceneIndex < 0) return;
+    if (activeSceneIndex < 0) {
+      clearTimers();
+      lineInCompleteRef.current = null;
+      currentSceneRef.current = -1;
+      setCurrentLine(null);
+      sorryScrollGate.reset();
+      return;
+    }
 
     if (activeSceneIndex === currentSceneRef.current) return;
     currentSceneRef.current = activeSceneIndex;

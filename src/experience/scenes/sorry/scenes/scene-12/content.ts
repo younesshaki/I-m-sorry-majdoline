@@ -8,7 +8,6 @@ export const scene12: NarrativeScene = {
   mode: "3d",
   position: { x: 0, y: 0, align: "center" },
   lines: [
-    { text: "I know it does not erase what happened." },
-    { text: "I will treat this chance gently." },
+    { text: "Thank you for accepting my sincere apology." },
   ],
 };

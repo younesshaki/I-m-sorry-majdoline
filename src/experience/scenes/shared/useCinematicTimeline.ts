@@ -82,6 +82,7 @@ export function useCinematicTimeline({
   const scenesRef = useRef<SceneData[]>([]);
   const cleanupFnsRef = useRef<(() => void)[]>([]);
   const initializingRef = useRef(false);
+  const startDelayedCallRef = useRef<gsap.core.Tween | null>(null);
   // Cancels the per-scene VO-sync RAF loop when transitioning away
   const voSyncCancelRef = useRef<(() => void) | null>(null);
   // Cancels the per-scene advance-gate RAF loop when transitioning away
@@ -104,6 +105,8 @@ export function useCinematicTimeline({
         sceneTimelineRef.current.kill();
         sceneTimelineRef.current = null;
       }
+      startDelayedCallRef.current?.kill();
+      startDelayedCallRef.current = null;
       
       // Fade out all audio gracefully then stop
       Object.values(audioMapRef.current).forEach((audio) => {
@@ -861,8 +864,13 @@ export function useCinematicTimeline({
 
       // Wait for audio to load, then start first scene
       Promise.all(audioLoadPromises).then(() => {
+        if (!initializingRef.current) {
+          return;
+        }
+
         devLog(`[Cinematic] Audio preloaded, starting scene 1`);
-        gsap.delayedCall(0.3, () => {
+        startDelayedCallRef.current = gsap.delayedCall(0.3, () => {
+          startDelayedCallRef.current = null;
           playScene(0);
         });
       });
@@ -885,7 +893,9 @@ export function useCinematicTimeline({
         sceneTimelineRef.current.kill();
         sceneTimelineRef.current = null;
       }
-      
+      startDelayedCallRef.current?.kill();
+      startDelayedCallRef.current = null;
+
       stopAllAudio();
       
       Object.keys(audioMapRef.current).forEach(sceneId => {

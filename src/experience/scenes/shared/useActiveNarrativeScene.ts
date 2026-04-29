@@ -14,7 +14,7 @@ export function useActiveNarrativeScene(
 ): ActiveNarrativeScene {
   const defaultMode = scenes[0]?.mode ?? "3d";
   const [activeScene, setActiveScene] = useState<ActiveNarrativeScene>({
-    id: scenes[0]?.id ?? null,
+    id: null,
     mode: defaultMode,
   });
 
