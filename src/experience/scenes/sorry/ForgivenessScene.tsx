@@ -107,6 +107,7 @@ function ModelCarousel() {
 function ForgivenessOverlay({ onYes, onNo }: ForgivenessSceneProps) {
   return (
     <div
+      className="forgivenessOverlay"
       style={{
         position: "fixed",
         inset: 0,

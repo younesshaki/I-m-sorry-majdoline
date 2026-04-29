@@ -135,19 +135,29 @@
   }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 600px) {
+  /* Stack carousel above the question/buttons so the 3D canvas never covers them */
+  .forgivenessOverlay {
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding: 2.5rem 1rem 2rem;
+    overflow-y: auto;
+    gap: 1.5rem;
+  }
+
   .forgivenessCarouselCorner {
-    bottom: 1rem;
-    right: 1rem;
+    position: static;
+    bottom: auto;
+    right: auto;
+    order: -1; /* carousel appears above the question on mobile */
   }
 
   .forgivenessPancakePreview {
-    width: min(22rem, 80vw);
+    width: min(18rem, 72vw);
     min-width: 0;
   }
-}
 
-@media (max-width: 520px) {
   .forgivenessChoiceButton {
     min-width: 7.4rem;
   }
