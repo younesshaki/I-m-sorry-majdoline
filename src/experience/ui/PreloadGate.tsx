@@ -22,13 +22,13 @@ const ERROR_MESSAGES: Record<string, string> = {
   network_error: "something went wrong, try again",
 };
 
-const USERNAME_PLACEHOLDERS = ["choose a name"];
+const USERNAME_PLACEHOLDERS = ["enter your name"];
 // Both "144" and "143" are accepted — Dounia wrote 143 or 144 letters
 // on his birthday, the numbers that mean "I love you".
 const BIRTHDAY_PASSWORDS = ["144", "143"];
 const BABY_YODA_PASSWORD = "woozi";
 const PASSWORD_PLACEHOLDERS: Record<PasswordStep, string[]> = {
-  birthday: ["how many letters are in the birthday jar?"],
+  birthday: ["how many letters did you write in the birthday jar"],
   babyYoda: ["what did you name baby yoda?"],
 };
 
