@@ -182,8 +182,6 @@ function ForgivenessOverlay({ onYes, onNo }: ForgivenessSceneProps) {
   );
 }
 
-CAROUSEL_MODELS.forEach(m => useGLTF.preload(m.url));
-
 export function ForgivenessScene({ onYes, onNo }: ForgivenessSceneProps) {
   const [overlayRoot, setOverlayRoot] = useState<{ host: HTMLDivElement; root: Root } | null>(null);
 

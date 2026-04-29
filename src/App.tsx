@@ -125,7 +125,9 @@ export default function App() {
           visible={!isSorryExperience}
           onQualityChange={handleMediaQualityChange}
         />
-        <OutsideSorryMusic enabled={!(isSorryExperience && sorryChapterRevealed)} />
+        {screen !== "gate" && (
+          <OutsideSorryMusic enabled={!(isSorryExperience && sorryChapterRevealed)} />
+        )}
         {!(isSorryExperience && sorryChapterRevealed) && <HeadphonesIcon />}
         {screen === "admin" ? (
           <AdminPage onExit={handleGoHome} />
